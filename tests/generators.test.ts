@@ -213,4 +213,57 @@ describe('End-to-end full pipeline', () => {
       expect(result.code).not.toContain('<body');
     }
   });
+
+  describe('Semantic mapping correctness', () => {
+    it('<nav> produces Nav/AppBar equivalent on each platform', () => {
+      const ir = runPipeline(FULL_HTML, FULL_CSS);
+      const flutter = generateFlutter(ir).code;
+      const compose = generateCompose(ir).code;
+      const swift = generateSwiftUI(ir).code;
+      expect(flutter).toContain('AppBar');
+      expect(compose).toContain('TopAppBar');
+      expect(swift).toContain('.navigationTitle');
+    });
+
+    it('<section class="hero"> produces content in each platform', () => {
+      const ir = runPipeline(FULL_HTML, FULL_CSS);
+      const flutter = generateFlutter(ir).code;
+      const compose = generateCompose(ir).code;
+      const swift = generateSwiftUI(ir).code;
+      expect(flutter).toContain('Hero Title');
+      expect(compose).toContain('Hero Title');
+      expect(swift).toContain('Hero Title');
+    });
+
+    it('<div class="card"> produces Card component on each platform', () => {
+      const ir = runPipeline(FULL_HTML, FULL_CSS);
+      const flutter = generateFlutter(ir).code;
+      const compose = generateCompose(ir).code;
+      const swift = generateSwiftUI(ir).code;
+      expect(flutter).toContain('Card');
+      expect(compose).toContain('Card');
+      expect(swift).toContain('background(Color(.systemBackground))');
+    });
+
+    it('<footer> renders on each platform', () => {
+      const ir = runPipeline(FULL_HTML, FULL_CSS);
+      const flutter = generateFlutter(ir).code;
+      const compose = generateCompose(ir).code;
+      const swift = generateSwiftUI(ir).code;
+      expect(flutter).toContain('Footer content');
+      expect(compose).toContain('Footer content');
+      expect(swift).toContain('Footer content');
+    });
+
+    it('<button> produces interactive element on each platform', () => {
+      const ir = runPipeline(FULL_HTML, FULL_CSS);
+      const flutter = generateFlutter(ir).code;
+      const compose = generateCompose(ir).code;
+      const swift = generateSwiftUI(ir).code;
+      expect(flutter).toContain('ElevatedButton');
+      expect(compose).toContain('Button');
+      expect(swift).toContain('Button');
+    });
+
+  });
 });
