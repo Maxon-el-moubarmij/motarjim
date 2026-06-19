@@ -1,0 +1,25 @@
+{
+  "name": "@html-native/cli",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "html-native": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@html-native/shared": "0.1.0",
+    "@html-native/parser": "0.1.0",
+    "@html-native/css-analyzer": "0.1.0",
+    "@html-native/semantic-analyzer": "0.1.0",
+    "@html-native/ir": "0.1.0",
+    "@html-native/optimizer": "0.1.0",
+    "@html-native/generator-flutter": "0.1.0",
+    "@html-native/generator-compose": "0.1.0",
+    "@html-native/generator-swiftui": "0.1.0",
+    "commander": "^12.0.0"
+  }
+}

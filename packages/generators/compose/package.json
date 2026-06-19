@@ -1,0 +1,15 @@
+{
+  "name": "@html-native/generator-compose",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@html-native/shared": "0.1.0",
+    "@html-native/ir": "0.1.0",
+    "@html-native/optimizer": "0.1.0"
+  }
+}
