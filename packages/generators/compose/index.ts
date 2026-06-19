@@ -1,11 +1,27 @@
 import { UiNode, GenerateResult, PlatformTarget } from '@html-native/shared';
 import { optimize } from '@html-native/optimizer';
 
+// Compose generator: wraps composable trees in a @Composable function with Material3 imports.
 export function generate(node: UiNode): GenerateResult {
   const start = performance.now();
   const optimized = optimize(node);
 
-  const code = generateNode(optimized, 0);
+  const body = generateNode(optimized, 0);
+  const indentedBody = body
+    .split('\n')
+    .map(line => `    ${line}`)
+    .join('\n');
+
+  const code = `import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Modifier
+
+@Composable
+fun GeneratedComponent() {
+${indentedBody}
+}
+`;
 
   return {
     code,

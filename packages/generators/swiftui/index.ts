@@ -1,11 +1,25 @@
 import { UiNode, GenerateResult, PlatformTarget } from '@html-native/shared';
 import { optimize } from '@html-native/optimizer';
 
+// SwiftUI generator: wraps view trees in a struct conforming to the View protocol.
 export function generate(node: UiNode): GenerateResult {
   const start = performance.now();
   const optimized = optimize(node);
 
-  const code = generateNode(optimized, 0);
+  const body = generateNode(optimized, 0);
+  const indentedBody = body
+    .split('\n')
+    .map(line => `    ${line}`)
+    .join('\n');
+
+  const code = `import SwiftUI
+
+struct GeneratedView: View {
+    var body: some View {
+${indentedBody}
+    }
+}
+`;
 
   return {
     code,

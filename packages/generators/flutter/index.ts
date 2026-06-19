@@ -1,11 +1,26 @@
 import { UiNode, GenerateResult, PlatformTarget } from '@html-native/shared';
 import { optimize } from '@html-native/optimizer';
 
+// Flutter generator: wraps widget trees in a StatelessWidget with material.dart imports.
 export function generate(node: UiNode): GenerateResult {
   const start = performance.now();
   const optimized = optimize(node);
 
-  const code = generateNode(optimized, 0);
+  const body = generateNode(optimized, 0);
+  const lines = body.split('\n');
+  const indentedBody = lines
+    .map((line, i) => i === 0 ? line : `    ${line}`)
+    .join('\n');
+
+  const code = `import 'package:flutter/material.dart';
+
+class GeneratedWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ${indentedBody};
+  }
+}
+`;
 
   return {
     code,
@@ -55,8 +70,14 @@ function generateNode(node: UiNode, level: number): string {
     case 'Container': {
       const props = formatProps(node.properties, level);
       const children = node.children.map(c => generateNode(c, level + 1));
-      if (!children.length) return `${i}Container(${props ? `\n${props}\n${i}` : ''})`;
-      return `Container(\n${props ? `${props},\n` : ''}${i}  child: ${children[0]},\n${i})`;
+      if (!children.length) {
+        return `${i}Container(${props ? `\n${props}\n${i}` : ''})`;
+      }
+      if (children.length === 1) {
+        return `Container(\n${props ? `${props},\n` : ''}${i}  child: ${children[0]},\n${i})`;
+      }
+      const childrenBlock = children.join(',\n');
+      return `Container(\n${props ? `${props},\n` : ''}${i}  child: Column(\n${i}    children: [\n${childrenBlock},\n${i}    ],\n${i}  ),\n${i})`;
     }
 
     case 'NavigationBar':
