@@ -20,6 +20,14 @@
     "@html-native/generator-flutter": "0.1.0",
     "@html-native/generator-compose": "0.1.0",
     "@html-native/generator-swiftui": "0.1.0",
-    "commander": "^12.0.0"
+    "commander": "^12.0.0",
+    "inquirer": "^9.3.7",
+    "chokidar": "^4.0.3",
+    "ora": "^8.1.1",
+    "cosmiconfig": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.10",
+    "@types/ora": "^3.1.0"
   }
 }

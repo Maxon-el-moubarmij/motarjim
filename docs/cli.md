@@ -51,10 +51,41 @@ CSS file ──▶ parseCss() ──▶ applyStyles()  ◀── Stage 2-3: CSS 
 
 ### Architecture
 
-The CLI is a single module under `packages/cli/` with zero internal subpackages. It depends on every pipeline package via the monorepo workspace:
+The CLI is organized into a command-based architecture under `packages/cli/`:
 
 ```
-cli
+packages/cli/
+├── index.ts                # Entry point
+├── bin.ts                  # Binary shebang entry
+├── src/
+│   ├── cli.ts              # Commander program setup
+│   ├── types.ts            # Shared type definitions
+│   ├── config/
+│   │   ├── loader.ts       # Config file loading (cosmiconfig)
+│   │   └── defaults.ts     # Smart defaults auto-detection
+│   ├── commands/
+│   │   ├── convert.ts      # Convert command handler
+│   │   ├── init.ts         # Init command handler
+│   │   ├── watch.ts        # Watch command handler (chokidar)
+│   │   ├── batch.ts        # Batch conversion handler
+│   │   ├── validate.ts     # Validation command handler
+│   │   ├── explain.ts      # Pipeline explain command
+│   │   └── new.ts          # Template scaffolding command
+│   ├── services/
+│   │   ├── pipeline.ts     # Pipeline orchestration + progress + stats
+│   │   ├── wizard.ts       # Interactive prompt wizard (Inquirer)
+│   │   ├── error-formatter.ts # Contextual error messages
+│   │   ├── templates.ts    # Template definitions & scaffolding
+│   │   └── validate-service.ts # HTML/CSS validation logic
+│   └── ui/
+│       ├── progress.ts     # Pipeline stage spinners (Ora)
+│       └── format.ts       # Output formatting utilities
+```
+
+It depends on every pipeline package via the monorepo workspace:
+
+```
+@html-native/cli
  ├── @html-native/parser              # parseHtml()
  ├── @html-native/css-analyzer        # parseCss(), applyStyles()
  ├── @html-native/semantic-analyzer   # detectSemantics(), createAiDetector()
@@ -65,17 +96,19 @@ cli
  └── @html-native/generator-swiftui   # generate()
 ```
 
-The binary is registered via the `"bin"` field in `packages/cli/package.json`:
+External dependencies: [commander](https://github.com/tj/commander.js) (CLI framework), [inquirer](https://github.com/SBoudrias/Inquirer.js) (interactive prompts), [chokidar](https://github.com/paulmillr/chokidar) (file watching), [ora](https://github.com/sindresorhus/ora) (progress spinners), [cosmiconfig](https://github.com/cosmiconfig/cosmiconfig) (config file loading).
+
+The binary is registered via `packages/cli/package.json`:
 
 ```json
 {
   "bin": {
-    "html-native": "../../dist/cli/index.js"
+    "html-native": "./bin.ts"
   }
 }
 ```
 
-When installed, `html-native` becomes globally available. The CLI uses [commander](https://github.com/tj/commander.js) for argument parsing and exits with code 0 on success or 1 on any error (missing file, parse failure, unknown target, or pipeline exception).
+When installed, `html-native` becomes globally available (requires `tsx` for TypeScript execution). The CLI uses Commander for argument parsing and exits with code 0 on success or 1 on any error.
 
 ## Installation
 
@@ -90,179 +123,297 @@ npm install
 npm run build
 ```
 
-## Command: `convert`
+## Commands
 
-Converts HTML/CSS to native UI code.
+### `convert`
 
-### Usage
+Converts HTML to native UI code. Supports smart defaults, config file loading, and interactive wizards.
 
-```bash
-html-native convert --input <file> --target <platform> [options]
-```
-
-### Options
-
-| Option | Alias | Required | Description |
-|--------|-------|----------|-------------|
-| `--input <path>` | `-i` | Yes | Path to input HTML file |
-| `--css <path>` | `-c` | No | Path to input CSS file |
-| `--target <platform>` | `-t` | Yes | Target platform: `flutter`, `compose`, or `swiftui` |
-| `--output <path>` | `-o` | No | Output file path (prints to stdout if omitted) |
-| `--ai-enhance` | | No | Enable Ollama AI-enhanced semantic detection |
-| `--ai-model <model>` | | No | Ollama model name (default: `qwen2.5:7b`) |
-
-### Examples
-
-#### Basic Conversion
+#### Usage
 
 ```bash
-# Convert to Flutter, output to file
-html-native convert \
-  --input index.html \
-  --css styles.css \
-  --target flutter \
-  --output lib/generated.dart
-
-# Convert to Compose, print to stdout
-html-native convert \
-  --input index.html \
-  --css styles.css \
-  --target compose
-
-# Convert to SwiftUI with AI enhancement
-html-native convert \
-  --input index.html \
-  --css styles.css \
-  --target swiftui \
-  --output GeneratedView.swift \
-  --ai-enhance
+html-native convert [input] [options]
 ```
 
-#### Platform-Specific
+#### Arguments
 
-<details>
-<summary><b>Flutter</b></summary>
+| Argument | Description |
+|----------|-------------|
+| `input` | Input HTML file (auto-detected if only one `.html` file exists in the current directory) |
+
+#### Options
+
+| Option | Alias | Description |
+|--------|-------|-------------|
+| `--css <path>` | `-c` | Input CSS file (auto-detected if same name as HTML) |
+| `--target <platform>` | `-t` | Target platform: `flutter`, `compose`, `swiftui` (auto-detected from output extension) |
+| `--output <path>` | `-o` | Output file path (defaults to `generated/` if omitted) |
+| `--ai-enhance` | | Enable Ollama AI-enhanced semantic detection |
+| `--ai-model <model>` | | Ollama model name (default: `qwen2.5:7b`) |
+| `--dry-run` | | Show detected files, target, and stats without generating code |
+
+#### Priority Order
+
+```
+CLI arguments > Config file (html-native.config.json) > Smart defaults
+```
+
+#### Examples
 
 ```bash
-html-native convert \
-  --input page.html \
-  --css page.css \
-  --target flutter \
-  --output lib/widgets/generated_page.dart
+# Minimal (auto-detect everything)
+html-native convert
+
+# Specify input only
+html-native convert index.html
+
+# Full manual configuration
+html-native convert index.html --css styles.css --target flutter --output lib/generated.dart
+
+# Auto-detect target from output extension
+html-native convert index.html --output home.kt
+
+# Dry run
+html-native convert index.html --dry-run
+
+# With AI enhancement
+html-native convert index.html --ai-enhance --ai-model llama3
 ```
 
-Generates a Dart file with:
-```dart
-import 'package:flutter/material.dart';
+#### Interactive Mode
 
-class GeneratedView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // ...
-  }
+When required arguments are omitted and smart defaults can't be determined, the CLI launches an interactive wizard:
+
+```
+? Select HTML file: (list of .html files)
+? Select CSS file: (list of .css files)
+? Select target platform: (flutter / compose / swiftui)
+? Output location: (generated/output.dart)
+? Enable AI enhancement? (Yes / No)
+```
+
+### `init`
+
+Creates a starter project structure with sample files and configuration.
+
+#### Usage
+
+```bash
+html-native init
+```
+
+#### Generated Structure
+
+```
+html-native.config.json     # Configuration file
+designs/
+  index.html                # Sample HTML
+  styles.css                # Sample CSS
+generated/                  # Output directory
+```
+
+### `watch`
+
+Watches HTML/CSS files and auto-regenerates on changes.
+
+#### Usage
+
+```bash
+html-native watch [options]
+```
+
+#### Options
+
+| Option | Alias | Description |
+|--------|-------|-------------|
+| `--input <path>` | `-i` | Input HTML file |
+| `--css <path>` | `-c` | Input CSS file |
+| `--target <platform>` | `-t` | Target platform |
+| `--output <path>` | `-o` | Output file path |
+| `--ai-enhance` | | Enable AI enhancement |
+| `--ai-model <model>` | | Ollama model name |
+
+#### Example
+
+```bash
+html-native watch --input designs/index.html --css designs/styles.css --target flutter
+
+# Output:
+# [23:16:34] Initial build completed
+# [23:16:34] Watching for changes...
+# [23:16:42] Changed: designs/index.html
+# [23:16:42] Generated Flutter code successfully
+```
+
+### `batch`
+
+Converts all HTML files in a directory to the target platform.
+
+#### Usage
+
+```bash
+html-native batch [inputDir] [options]
+```
+
+#### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `inputDir` | Directory containing HTML files (default: `designs/`) |
+
+#### Options
+
+| Option | Description |
+|--------|-------------|
+| `--target <platform>` | Target platform |
+| `--output-dir <path>` | Output directory (default: `generated/`) |
+| `--ai-enhance` | Enable AI enhancement |
+
+#### Example
+
+```bash
+html-native batch designs/ --target flutter --output-dir generated/
+
+# Output:
+# Converting: home.html...
+# Converting: about.html...
+# Converting: contact.html...
+# Batch complete: 3 succeeded, 0 failed
+```
+
+### `validate`
+
+Checks HTML/CSS for issues before conversion.
+
+#### Usage
+
+```bash
+html-native validate <input> [options]
+```
+
+#### Examples
+
+```bash
+html-native validate index.html
+html-native validate index.html --css styles.css
+```
+
+#### Output
+
+```
+Validating: index.html
+CSS file:   styles.css
+
+Warnings (3):
+⚠ Unsupported CSS selector: :hover
+      File: styles.css:42
+      Suggestion: HTML-Native does not support :hover.
+⚠ Unsupported CSS property: backdrop-filter
+      File: styles.css:15
+      Suggestion: Use opacity, blur, or shadow instead.
+⚠ Missing DOCTYPE declaration
+      File: index.html
+
+✓ Validation passed (with warnings)
+```
+
+### `explain`
+
+Displays the compilation pipeline architecture with package names and responsibilities.
+
+#### Usage
+
+```bash
+html-native explain
+```
+
+#### Output
+
+```
+HTML-Native Compilation Pipeline
+==================================================
+  HTML Parsing      │  Parses HTML using parse5
+  CSS Analysis      │  Parses CSS with PostCSS
+  Semantic Analysis  │  Detects UI components
+  IR Conversion     │  Converts to platform-neutral IR
+  Optimization      │  Three optimization passes
+  Code Generation   │  Platform-specific code output
+==================================================
+Output: Flutter (Dart) | Compose (Kotlin) | SwiftUI (Swift)
+```
+
+### `new`
+
+Scaffolds a project from a predefined template.
+
+#### Usage
+
+```bash
+html-native new [template]
+```
+
+#### Available Templates
+
+| Template | Description |
+|----------|-------------|
+| `landing-page` | Marketing landing page with hero, features, footer |
+| `dashboard` | Admin dashboard with sidebar, stats, table |
+| `ecommerce` | Product listing page |
+| `portfolio` | Personal portfolio/showcase |
+| `blog` | Blog with article cards |
+
+#### Example
+
+```bash
+html-native new landing-page
+# Created designs/index.html
+# Created designs/styles.css
+```
+
+## Configuration File
+
+The CLI supports `html-native.config.json` for persistent project configuration.
+
+### Example
+
+```json
+{
+  "input": "designs/index.html",
+  "css": "designs/styles.css",
+  "target": "flutter",
+  "output": "lib/generated/home.dart",
+  "aiEnhance": false
 }
 ```
-</details>
 
-<details>
-<summary><b>Compose</b></summary>
+### Priority
 
-```bash
-html-native convert \
-  --input page.html \
-  --css page.css \
-  --target compose \
-  --output app/src/main/java/com/example/GeneratedView.kt
+```
+CLI arguments > Config file > Smart defaults
 ```
 
-Generates a Kotlin file with:
-```kotlin
-import androidx.compose.material3.*
+## Output
 
-@Composable
-fun GeneratedView() {
-    // ...
-}
+After a successful conversion, the CLI displays:
+
 ```
-</details>
+✔ Parsing HTML
+✔ Parsing CSS
+✔ Semantic Analysis
+✔ IR Conversion
+✔ Optimization
+✔ Code Generation
+Written to lib/generated/home.dart
 
-<details>
-<summary><b>SwiftUI</b></summary>
-
-```bash
-html-native convert \
-  --input page.html \
-  --css page.css \
-  --target swiftui \
-  --output GeneratedView.swift
-```
-
-Generates a Swift file with:
-```swift
-import SwiftUI
-
-struct GeneratedView: View {
-    var body: some View {
-        // ...
-    }
-}
-```
-</details>
-
-#### CI/CD Integration
-
-```yaml
-# GitHub Actions example
-jobs:
-  generate-ui:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install -g html-native-engine
-      - run: |
-          html-native convert \
-            --input design/index.html \
-            --css design/styles.css \
-            --target flutter \
-            --output lib/generated/home_page.dart
-      - run: flutter build
-```
-
-#### Shell Scripting
-
-```bash
-#!/bin/bash
-# Batch convert all HTML files in a directory
-
-for file in designs/*.html; do
-  name=$(basename "$file" .html)
-  css="designs/${name}.css"
-  
-  if [ -f "$css" ]; then
-    html-native convert \
-      --input "$file" \
-      --css "$css" \
-      --target flutter \
-      --output "lib/generated/${name}_page.dart"
-  else
-    html-native convert \
-      --input "$file" \
-      --target flutter \
-      --output "lib/generated/${name}_page.dart"
-  fi
-done
-```
-
-#### Automation
-
-```bash
-# Watch mode (using entr)
-find designs/ -name '*.html' -o -name '*.css' | entr -c html-native convert \
-  --input designs/index.html \
-  --css designs/styles.css \
-  --target flutter \
-  --output lib/generated.dart
+────────────────────────
+  HTML Nodes:              145
+  Styled Nodes:            145
+  Components Detected:     8
+  Optimization Savings:    23%
+  Generated Lines:         412
+  Target:                  Flutter
+  Duration:                0.84s
+────────────────────────
 ```
 
 ## Exit Codes
@@ -270,7 +421,7 @@ find designs/ -name '*.html' -o -name '*.css' | entr -c html-native convert \
 | Code | Meaning |
 |------|---------|
 | 0 | Success |
-| 1 | Error (file not found, parse failure, unknown target) |
+| 1 | Error (file not found, parse failure, unknown target, pipeline exception) |
 
 ## Error Messages
 
@@ -279,4 +430,5 @@ find designs/ -name '*.html' -o -name '*.css' | entr -c html-native convert \
 | `File not found: path` | Input file doesn't exist |
 | `CSS file not found: path` | CSS file doesn't exist |
 | `Unknown target "..."` | Target must be `flutter`, `compose`, or `swiftui` |
+| `Unsupported CSS property: ...` | CSS property not supported for native output |
 | `Error during conversion: ...` | Pipeline error with details |
