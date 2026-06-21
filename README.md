@@ -1,5 +1,9 @@
 # motarjim
 
+<p align="center">
+  <img src="motarjim.png" alt="motarjim logo" width="200">
+</p>
+
 **HTML/CSS → Native UI Code compiler** for Flutter, Jetpack Compose, and SwiftUI.
 
 Write once in HTML/CSS. Ship native code for every platform.
