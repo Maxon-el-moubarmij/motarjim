@@ -8,7 +8,8 @@ import { optimize } from '@html-native/optimizer';
 import { generate as generateFlutter } from '@html-native/generator-flutter';
 import { generate as generateCompose } from '@html-native/generator-compose';
 import { generate as generateSwiftUI } from '@html-native/generator-swiftui';
-import type { HtmlNode, StyledNode, PlatformTarget, GenerateResult, UiNode } from '@html-native/shared';
+import type { HtmlNode, StyledNode, PlatformTarget, GenerateResult, UiNode, Result, Diagnostic } from '@html-native/shared';
+import { formatDiagnostics } from '@html-native/shared/diagnostics.js';
 import type { ResolvedOptions, ConversionStats } from '../types.js';
 import { countComponentNodes, countLines, computeOptimizationSavings, generateStatsTable } from './stats.js';
 import { createPipelineSpinners } from '../ui/progress.js';
@@ -16,6 +17,23 @@ import { createPipelineSpinners } from '../ui/progress.js';
 export interface PipelineResult {
   code: string;
   stats: ConversionStats;
+}
+
+export class PipelineError extends Error {
+  diagnostics: Diagnostic[];
+
+  constructor(diagnostics: Diagnostic[]) {
+    super(formatDiagnostics(diagnostics));
+    this.name = 'PipelineError';
+    this.diagnostics = diagnostics;
+  }
+}
+
+function requireOk<T>(result: Result<T>, phase: string): T {
+  if (!result.ok) {
+    throw new PipelineError(result.diagnostics);
+  }
+  return result.value;
 }
 
 function countHtmlNodes(node: HtmlNode): number {
@@ -33,7 +51,8 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
   try {
     spinners.start('Parsing HTML');
     const html = readFileSync(options.input, 'utf-8');
-    const ast = parseHtml(html);
+    const parseResult = parseHtml(html, options.input);
+    const ast = requireOk(parseResult, 'parser');
     const htmlNodeCount = countHtmlNodes(ast);
     spinners.succeed('Parsing HTML');
 
@@ -42,17 +61,17 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
     if (options.css) {
       css = readFileSync(options.css, 'utf-8');
     }
-    const stylesheet = parseCss(css);
+    const cssResult = parseCss(css, options.css || 'styles.css');
+    const stylesheet = requireOk(cssResult, 'css');
     spinners.succeed('Parsing CSS');
 
     spinners.start('Semantic Analysis');
-    let styledNodes = applyStyles(ast.children, stylesheet);
+    const applyResult = applyStyles(ast.children, stylesheet, options.input);
+    let styledNodes = requireOk(applyResult, 'css');
     const styledCount = styledNodes.reduce((acc, n) => acc + countHtmlNodes(n.node), 0);
 
-    // CSS intent analysis (always runs, no AI needed)
     styledNodes = analyzeLayoutIntents(styledNodes);
 
-    // Responsive metadata (always runs)
     const responsiveMetadata = buildResponsiveMetadata(stylesheet);
 
     let hints;
@@ -61,7 +80,8 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
       const aiDetector = createAiDetector(options.aiModel ? { model: options.aiModel } : undefined);
       hints = await aiDetector(styledNodes);
     } else {
-      hints = detectSemantics(styledNodes);
+      const semanticResult = detectSemantics(styledNodes);
+      hints = requireOk(semanticResult, 'semantic');
     }
     spinners.succeed('Semantic Analysis');
 
@@ -72,14 +92,13 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
       children: styledNodes,
       layoutIntent: { type: 'Stack', properties: {}, confidence: 1 },
     };
-    let ir = styledNodeToIr(rootStyled, hints);
+    const irResult = styledNodeToIr(rootStyled, hints);
+    let ir = requireOk(irResult, 'ir');
 
-    // Attach responsive metadata
     if (responsiveMetadata.breakpoints.length > 0) {
       ir = attachResponsiveMetadata(ir, responsiveMetadata);
     }
 
-    // AI-powered intent inference (rule-based always, AI if enabled)
     if (options.aiEnhance) {
       ir = await enrichWithIntent(ir, { enabled: true, aiConfig: options.aiModel ? { model: options.aiModel } : undefined });
     } else {
@@ -91,24 +110,39 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
 
     spinners.start('Optimization');
     const irBefore = structuredClone(ir);
-    const optimized = optimize(ir);
+    const optResult = optimize(ir);
+    const optimized = requireOk(optResult, 'optimizer');
     const savings = computeOptimizationSavings(irBefore, optimized);
     spinners.succeed('Optimization');
 
     spinners.start('Code Generation');
-    let result: GenerateResult;
+    let generateResult: GenerateResult;
     switch (options.target) {
-      case 'flutter':
-        result = generateFlutter(optimized);
+      case 'flutter': {
+        const r = generateFlutter(optimized);
+        if (!r.ok) throw new PipelineError(r.diagnostics);
+        generateResult = r.value;
         break;
-      case 'compose':
-        result = generateCompose(optimized);
+      }
+      case 'compose': {
+        const r = generateCompose(optimized);
+        if (!r.ok) throw new PipelineError(r.diagnostics);
+        generateResult = r.value;
         break;
-      case 'swiftui':
-        result = generateSwiftUI(optimized);
+      }
+      case 'swiftui': {
+        const r = generateSwiftUI(optimized);
+        if (!r.ok) throw new PipelineError(r.diagnostics);
+        generateResult = r.value;
         break;
+      }
       default:
-        throw new Error(`Unknown target "${options.target}". Use flutter, compose, or swiftui.`);
+        throw new PipelineError([{
+          code: 'PIPE_001',
+          message: `Unknown target "${options.target}". Use flutter, compose, or swiftui.`,
+          severity: 'error',
+          phase: 'generator',
+        }]);
     }
     spinners.succeed('Code Generation');
 
@@ -119,14 +153,17 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
       styledNodes: styledCount,
       componentsDetected,
       optimizationSavings: savings,
-      generatedLines: countLines(result.code),
+      generatedLines: countLines(generateResult.code),
       target: options.target,
       duration,
     };
 
-    return { code: result.code, stats };
+    return { code: generateResult.code, stats };
   } catch (err) {
     spinners.stopAll();
+    if (err instanceof PipelineError) {
+      throw err;
+    }
     throw err;
   }
 }
