@@ -1,4 +1,4 @@
-import type { HtmlNode, SelectorSimple, SelectorCompound, SelectorRelation, SelectorAst, Combinator, Specificity } from '@html-native/shared';
+import type { HtmlNode, SelectorSimple, SelectorCompound, SelectorRelation, SelectorAst, Combinator, Specificity } from '@motarjim/shared';
 
 // -- Parser --
 

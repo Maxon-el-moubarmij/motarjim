@@ -1,5 +1,5 @@
 {
-  "name": "@html-native/parser",
+  "name": "@motarjim/parser",
   "version": "0.1.0",
   "private": true,
   "main": "index.ts",
@@ -8,7 +8,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@html-native/shared": "0.1.0",
+    "@motarjim/shared": "0.1.0",
     "parse5": "^7.1.2"
   }
 }

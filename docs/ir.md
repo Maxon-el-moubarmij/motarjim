@@ -7,7 +7,7 @@ The IR (Intermediate Representation) is a platform-neutral tree that bridges CSS
 ## Implementation
 
 **File:** `packages/ir/index.ts`  
-**Package:** `@html-native/ir`
+**Package:** `@motarjim/ir`
 
 ## Exported Functions
 
@@ -23,7 +23,7 @@ Converts a styled HTML node tree to the platform-neutral IR.
 
 **Example:**
 ```typescript
-import { styledNodeToIr } from '@html-native/ir';
+import { styledNodeToIr } from '@motarjim/ir';
 
 const ir = styledNodeToIr(rootStyled, hints);
 // ir.type === 'Column' (or inferred from display: flex)

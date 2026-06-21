@@ -97,4 +97,4 @@ export type {
   emptySourceSpan,
   defaultComputedStyle,
   defaultTargetIR,
-} from '@html-native/shared/ir-v2.js';
+} from '@motarjim/shared/ir-v2.js';

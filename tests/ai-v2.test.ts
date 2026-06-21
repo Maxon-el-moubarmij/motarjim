@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { z } from 'zod';
-import type { StyledNode, UiNode } from '@html-native/shared';
-import { ok } from '@html-native/shared/diagnostics.js';
+import type { StyledNode, UiNode } from '@motarjim/shared';
+import { ok } from '@motarjim/shared/diagnostics.js';
 
-function unwrap<T>(r: import('@html-native/shared').Result<T>): T {
+function unwrap<T>(r: import('@motarjim/shared').Result<T>): T {
   if (!r.ok) throw new Error(r.diagnostics.map(d => d.message).join(', '));
   return r.value;
 }

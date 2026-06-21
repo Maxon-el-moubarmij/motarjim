@@ -9,7 +9,7 @@ export async function newCommand(args: Record<string, unknown>): Promise<void> {
     for (const template of getAllTemplates()) {
       console.log(`  ${template.name.padEnd(16)} ${template.description}`);
     }
-    console.log('\nUsage: html-native new <template-name>');
+    console.log('\nUsage: motarjim new <template-name>');
     return;
   }
 
@@ -34,5 +34,5 @@ export async function newCommand(args: Record<string, unknown>): Promise<void> {
 
   console.log('\nNext steps:');
   console.log(`  1. Edit the files in designs/`);
-  console.log(`  2. Run: html-native convert`);
+  console.log(`  2. Run: motarjim convert`);
 }

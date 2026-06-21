@@ -66,7 +66,7 @@
 - [ ] Watch mode (auto-recompile on file change)
 - [ ] Pretty-print output (configurable indentation)
 - [ ] Error reporting with source locations
-- [ ] Config file support (`html-native.json`)
+- [ ] Config file support (`motarjim.json`)
 - [ ] Multiple file/page compilation
 - [ ] Plugin system for custom emitters
 

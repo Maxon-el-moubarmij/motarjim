@@ -7,7 +7,7 @@ Generates Kotlin code using Jetpack Compose with Material 3 design. Output is a 
 ## Implementation
 
 **File:** `packages/generators/compose/index.ts`  
-**Package:** `@html-native/generator-compose`
+**Package:** `@motarjim/generator-compose`
 
 ## Exported Function
 

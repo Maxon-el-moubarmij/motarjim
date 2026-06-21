@@ -1,6 +1,6 @@
 import * as parse5 from 'parse5';
-import type { HtmlNode, HtmlAttribute, Result } from '@html-native/shared';
-import { DiagnosticBag } from '@html-native/shared/diagnostics.js';
+import type { HtmlNode, HtmlAttribute, Result } from '@motarjim/shared';
+import { DiagnosticBag } from '@motarjim/shared/diagnostics.js';
 
 let nodeCounter = 0;
 
@@ -13,7 +13,7 @@ function convertAttrs(attrs: any[] | undefined): HtmlAttribute[] {
   return attrs.map((a: any) => ({ name: a.name, value: a.value ?? '' }));
 }
 
-function toSourceSpan(sc: any, file: string): import('@html-native/shared').SourceSpan | undefined {
+function toSourceSpan(sc: any, file: string): import('@motarjim/shared').SourceSpan | undefined {
   if (!sc) return undefined;
   return {
     file,

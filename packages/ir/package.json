@@ -1,5 +1,5 @@
 {
-  "name": "@html-native/ir",
+  "name": "@motarjim/ir",
   "version": "0.1.0",
   "private": true,
   "main": "index.ts",
@@ -8,8 +8,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@html-native/shared": "0.1.0",
-    "@html-native/css-analyzer": "0.1.0",
+    "@motarjim/shared": "0.1.0",
+    "@motarjim/css-analyzer": "0.1.0",
     "zod": "^3.24.0"
   }
 }

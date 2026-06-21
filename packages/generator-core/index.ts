@@ -1,4 +1,4 @@
-import { UiNode, SourceSpan } from '@html-native/shared';
+import { UiNode, SourceSpan } from '@motarjim/shared';
 
 export {
   selectWidget,

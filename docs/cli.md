@@ -2,11 +2,11 @@
 
 ## Overview
 
-`html-native` is the command-line interface for the compiler pipeline. It accepts HTML and optional CSS input and generates native UI code for the specified platform.
+`motarjim` is the command-line interface for the compiler pipeline. It accepts HTML and optional CSS input and generates native UI code for the specified platform.
 
 ## How It Works
 
-The CLI (`packages/cli/index.ts`) is a thin orchestrator that wires together the entire compilation pipeline. When you run `html-native convert`, it executes the following stages in order:
+The CLI (`packages/cli/index.ts`) is a thin orchestrator that wires together the entire compilation pipeline. When you run `motarjim convert`, it executes the following stages in order:
 
 ```
 HTML file  ──▶  readFileSync
@@ -85,15 +85,15 @@ packages/cli/
 It depends on every pipeline package via the monorepo workspace:
 
 ```
-@html-native/cli
- ├── @html-native/parser              # parseHtml()
- ├── @html-native/css-analyzer        # parseCss(), applyStyles()
- ├── @html-native/semantic-analyzer   # detectSemantics(), createAiDetector()
- ├── @html-native/ir                  # styledNodeToIr()
- ├── @html-native/optimizer           # optimize()
- ├── @html-native/generator-flutter   # generate()
- ├── @html-native/generator-compose   # generate()
- └── @html-native/generator-swiftui   # generate()
+@motarjim/cli
+ ├── @motarjim/parser              # parseHtml()
+ ├── @motarjim/css-analyzer        # parseCss(), applyStyles()
+ ├── @motarjim/semantic-analyzer   # detectSemantics(), createAiDetector()
+ ├── @motarjim/ir                  # styledNodeToIr()
+ ├── @motarjim/optimizer           # optimize()
+ ├── @motarjim/generator-flutter   # generate()
+ ├── @motarjim/generator-compose   # generate()
+ └── @motarjim/generator-swiftui   # generate()
 ```
 
 External dependencies: [commander](https://github.com/tj/commander.js) (CLI framework), [inquirer](https://github.com/SBoudrias/Inquirer.js) (interactive prompts), [chokidar](https://github.com/paulmillr/chokidar) (file watching), [ora](https://github.com/sindresorhus/ora) (progress spinners), [cosmiconfig](https://github.com/cosmiconfig/cosmiconfig) (config file loading).
@@ -103,12 +103,12 @@ The binary is registered via `packages/cli/package.json`:
 ```json
 {
   "bin": {
-    "html-native": "./bin.ts"
+    "motarjim": "./bin.ts"
   }
 }
 ```
 
-When installed, `html-native` becomes globally available (requires `tsx` for TypeScript execution). The CLI uses Commander for argument parsing and exits with code 0 on success or 1 on any error.
+When installed, `motarjim` becomes globally available (requires `tsx` for TypeScript execution). The CLI uses Commander for argument parsing and exits with code 0 on success or 1 on any error.
 
 ## Installation
 
@@ -132,7 +132,7 @@ Converts HTML to native UI code. Supports smart defaults, config file loading, a
 #### Usage
 
 ```bash
-html-native convert [input] [options]
+motarjim convert [input] [options]
 ```
 
 #### Arguments
@@ -155,29 +155,29 @@ html-native convert [input] [options]
 #### Priority Order
 
 ```
-CLI arguments > Config file (html-native.config.json) > Smart defaults
+CLI arguments > Config file (motarjim.config.json) > Smart defaults
 ```
 
 #### Examples
 
 ```bash
 # Minimal (auto-detect everything)
-html-native convert
+motarjim convert
 
 # Specify input only
-html-native convert index.html
+motarjim convert index.html
 
 # Full manual configuration
-html-native convert index.html --css styles.css --target flutter --output lib/generated.dart
+motarjim convert index.html --css styles.css --target flutter --output lib/generated.dart
 
 # Auto-detect target from output extension
-html-native convert index.html --output home.kt
+motarjim convert index.html --output home.kt
 
 # Dry run
-html-native convert index.html --dry-run
+motarjim convert index.html --dry-run
 
 # With AI enhancement
-html-native convert index.html --ai-enhance --ai-model llama3
+motarjim convert index.html --ai-enhance --ai-model llama3
 ```
 
 #### Interactive Mode
@@ -199,13 +199,13 @@ Creates a starter project structure with sample files and configuration.
 #### Usage
 
 ```bash
-html-native init
+motarjim init
 ```
 
 #### Generated Structure
 
 ```
-html-native.config.json     # Configuration file
+motarjim.config.json     # Configuration file
 designs/
   index.html                # Sample HTML
   styles.css                # Sample CSS
@@ -219,7 +219,7 @@ Watches HTML/CSS files and auto-regenerates on changes.
 #### Usage
 
 ```bash
-html-native watch [options]
+motarjim watch [options]
 ```
 
 #### Options
@@ -236,7 +236,7 @@ html-native watch [options]
 #### Example
 
 ```bash
-html-native watch --input designs/index.html --css designs/styles.css --target flutter
+motarjim watch --input designs/index.html --css designs/styles.css --target flutter
 
 # Output:
 # [23:16:34] Initial build completed
@@ -252,7 +252,7 @@ Converts all HTML files in a directory to the target platform.
 #### Usage
 
 ```bash
-html-native batch [inputDir] [options]
+motarjim batch [inputDir] [options]
 ```
 
 #### Arguments
@@ -272,7 +272,7 @@ html-native batch [inputDir] [options]
 #### Example
 
 ```bash
-html-native batch designs/ --target flutter --output-dir generated/
+motarjim batch designs/ --target flutter --output-dir generated/
 
 # Output:
 # Converting: home.html...
@@ -288,14 +288,14 @@ Checks HTML/CSS for issues before conversion.
 #### Usage
 
 ```bash
-html-native validate <input> [options]
+motarjim validate <input> [options]
 ```
 
 #### Examples
 
 ```bash
-html-native validate index.html
-html-native validate index.html --css styles.css
+motarjim validate index.html
+motarjim validate index.html --css styles.css
 ```
 
 #### Output
@@ -324,7 +324,7 @@ Displays the compilation pipeline architecture with package names and responsibi
 #### Usage
 
 ```bash
-html-native explain
+motarjim explain
 ```
 
 #### Output
@@ -349,7 +349,7 @@ Scaffolds a project from a predefined template.
 #### Usage
 
 ```bash
-html-native new [template]
+motarjim new [template]
 ```
 
 #### Available Templates
@@ -365,14 +365,14 @@ html-native new [template]
 #### Example
 
 ```bash
-html-native new landing-page
+motarjim new landing-page
 # Created designs/index.html
 # Created designs/styles.css
 ```
 
 ## Configuration File
 
-The CLI supports `html-native.config.json` for persistent project configuration.
+The CLI supports `motarjim.config.json` for persistent project configuration.
 
 ### Example
 

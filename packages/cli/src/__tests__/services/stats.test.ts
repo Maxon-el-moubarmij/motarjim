@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { UiNode } from '@html-native/shared';
+import type { UiNode } from '@motarjim/shared';
 import { countNodes, countComponentNodes, countLines, computeOptimizationSavings, generateStatsTable } from '../../services/stats.js';
 
 describe('countNodes', () => {

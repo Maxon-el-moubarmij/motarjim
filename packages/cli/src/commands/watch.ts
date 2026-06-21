@@ -24,7 +24,7 @@ export async function watchCommand(args: Record<string, unknown>): Promise<void>
   let options = await getCurrentOptions(args);
 
   if (!options.input) {
-    console.error('Error: No input file specified. Use --input or configure html-native.config.json');
+    console.error('Error: No input file specified. Use --input or configure motarjim.config.json');
     process.exit(1);
   }
 

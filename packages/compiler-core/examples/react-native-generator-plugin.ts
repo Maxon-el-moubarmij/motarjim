@@ -1,5 +1,5 @@
 import type { MotarjimPlugin, PluginApi, GeneratorFactory } from '../src/plugin-api.js';
-import type { UiNode, GenerateResult, Result } from '@html-native/shared';
+import type { UiNode, GenerateResult, Result } from '@motarjim/shared';
 
 // ── Node Emitter interface (self-contained to avoid generator-core dep) ──
 

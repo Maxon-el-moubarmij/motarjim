@@ -1,5 +1,5 @@
 import type { MotarjimPlugin, PluginApi, IrTransform } from '../src/plugin-api.js';
-import type { UiNode } from '@html-native/shared';
+import type { UiNode } from '@motarjim/shared';
 
 /**
  * Skeleton-screen IR transform.

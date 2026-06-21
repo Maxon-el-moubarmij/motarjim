@@ -1,4 +1,4 @@
-import type { ResolvedStyles, ComputedStyle } from '@html-native/shared';
+import type { ResolvedStyles, ComputedStyle } from '@motarjim/shared';
 
 function parsePx(value: string | undefined): number | undefined {
   if (!value) return undefined;

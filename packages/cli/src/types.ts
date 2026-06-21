@@ -1,4 +1,4 @@
-import type { PlatformTarget } from '@html-native/shared';
+import type { PlatformTarget } from '@motarjim/shared';
 
 export interface CliConfig {
   input?: string;

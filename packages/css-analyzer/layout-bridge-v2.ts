@@ -15,8 +15,8 @@ import type {
   ScrollLayout,
   Spacing,
   StackLayout,
-} from '@html-native/shared';
-import { defaultChildLayout } from '@html-native/shared';
+} from '@motarjim/shared';
+import { defaultChildLayout } from '@motarjim/shared';
 
 export interface CssComputedLayoutStyle {
   display?: string;

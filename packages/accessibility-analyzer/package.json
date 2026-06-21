@@ -1,5 +1,5 @@
 {
-  "name": "@html-native/accessibility-analyzer",
+  "name": "@motarjim/accessibility-analyzer",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,6 +9,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@html-native/shared": "0.1.0"
+    "@motarjim/shared": "0.1.0"
   }
 }

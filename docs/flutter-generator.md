@@ -7,7 +7,7 @@ Generates Dart code using Flutter's Material Design widget library. Output is a 
 ## Implementation
 
 **File:** `packages/generators/flutter/index.ts`  
-**Package:** `@html-native/generator-flutter`
+**Package:** `@motarjim/generator-flutter`
 
 ## Exported Function
 

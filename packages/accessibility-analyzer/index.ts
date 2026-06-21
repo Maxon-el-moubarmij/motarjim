@@ -6,8 +6,8 @@ import type {
   AccessibilityNode,
   AccessibilityTree,
   Result,
-} from '@html-native/shared';
-import { DiagnosticBag } from '@html-native/shared/diagnostics.js';
+} from '@motarjim/shared';
+import { DiagnosticBag } from '@motarjim/shared/diagnostics.js';
 
 export type { AccessibilityInfo, AccessibilityIssue, AccessibilityNode, AccessibilityTree };
 

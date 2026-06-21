@@ -1,4 +1,4 @@
-import type { UiNode, PlatformTarget } from '@html-native/shared';
+import type { UiNode, PlatformTarget } from '@motarjim/shared';
 import type { ConversionStats } from '../types.js';
 
 export function countNodes(node: UiNode): number {

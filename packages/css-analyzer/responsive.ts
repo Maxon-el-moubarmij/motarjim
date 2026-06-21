@@ -2,7 +2,7 @@
 // Detects responsive patterns (mobile-first, breakpoints, responsive grids)
 // and generates responsive metadata for the IR pipeline.
 
-import type { CssStylesheet, ResponsiveMetadata, Breakpoint, LayoutIntent } from '@html-native/shared';
+import type { CssStylesheet, ResponsiveMetadata, Breakpoint, LayoutIntent } from '@motarjim/shared';
 import { detectLayoutIntent } from './intent.js';
 
 // -- Breakpoint classification --

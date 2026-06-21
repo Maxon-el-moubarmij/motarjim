@@ -7,7 +7,7 @@ The shared infrastructure that all three platform generators depend on. Contains
 ## Implementation
 
 **File:** `packages/generator-core/index.ts`  
-**Package:** `@html-native/generator-core`
+**Package:** `@motarjim/generator-core`
 
 ## Exported Functions
 

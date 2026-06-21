@@ -8,7 +8,7 @@ export async function validateCommand(args: Record<string, unknown>): Promise<vo
   const cssRaw = args.css as string | undefined;
 
   if (!inputRaw) {
-    console.error('Error: No input file specified. Usage: html-native validate <file.html> [--css styles.css]');
+    console.error('Error: No input file specified. Usage: motarjim validate <file.html> [--css styles.css]');
     process.exit(1);
   }
 

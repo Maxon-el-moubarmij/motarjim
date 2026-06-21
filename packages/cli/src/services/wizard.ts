@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 import { existsSync, readdirSync } from 'fs';
 import { join, resolve } from 'path';
-import type { PlatformTarget } from '@html-native/shared';
+import type { PlatformTarget } from '@motarjim/shared';
 import type { ResolvedOptions } from '../types.js';
 import { findMatchingCss } from '../config/defaults.js';
 

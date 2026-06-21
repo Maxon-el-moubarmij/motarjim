@@ -1,13 +1,13 @@
 import type { CompilerContext, CompilerDiagnostic, PhaseId } from './types.js';
 import type { PassManager as PassManagerInterface } from './types.js';
-import type { UiNode, SemanticRule, PlatformTarget, GenerateResult, Result } from '@html-native/shared';
+import type { UiNode, SemanticRule, PlatformTarget, GenerateResult, Result } from '@motarjim/shared';
 import type { OptimizationPass } from './pass-types.js';
 
 // ── Plugin Extension Points ──────────────────────────────
 
 /**
  * A semantic rule contributed by a plugin.
- * Same shape as `SemanticRule` from `@html-native/shared` but with
+ * Same shape as `SemanticRule` from `@motarjim/shared` but with
  * the plugin's own metadata attached for diagnostics.
  */
 export interface PluginSemanticRule extends SemanticRule {

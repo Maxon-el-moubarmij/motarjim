@@ -1,16 +1,16 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
-import { parseHtml } from '@html-native/parser';
-import { parseCss, applyStyles, analyzeLayoutIntents, buildResponsiveMetadata } from '@html-native/css-analyzer';
-import { detectSemantics } from '@html-native/semantic-analyzer';
-import { analyzeAccessibility } from '@html-native/accessibility-analyzer';
-import { styledNodeToIr, enrichWithIntent, enrichWithIntentSync } from '@html-native/ir';
-import { optimize } from '@html-native/optimizer';
-import { generate as generateFlutter } from '@html-native/generator-flutter';
-import { generate as generateCompose } from '@html-native/generator-compose';
-import { generate as generateSwiftUI } from '@html-native/generator-swiftui';
-import type { HtmlNode, StyledNode, PlatformTarget, GenerateResult, UiNode, Result, Diagnostic } from '@html-native/shared';
-import { formatDiagnostics } from '@html-native/shared/diagnostics.js';
+import { parseHtml } from '@motarjim/parser';
+import { parseCss, applyStyles, analyzeLayoutIntents, buildResponsiveMetadata } from '@motarjim/css-analyzer';
+import { detectSemantics } from '@motarjim/semantic-analyzer';
+import { analyzeAccessibility } from '@motarjim/accessibility-analyzer';
+import { styledNodeToIr, enrichWithIntent, enrichWithIntentSync } from '@motarjim/ir';
+import { optimize } from '@motarjim/optimizer';
+import { generate as generateFlutter } from '@motarjim/generator-flutter';
+import { generate as generateCompose } from '@motarjim/generator-compose';
+import { generate as generateSwiftUI } from '@motarjim/generator-swiftui';
+import type { HtmlNode, StyledNode, PlatformTarget, GenerateResult, UiNode, Result, Diagnostic } from '@motarjim/shared';
+import { formatDiagnostics } from '@motarjim/shared/diagnostics.js';
 import type { ResolvedOptions, ConversionStats } from '../types.js';
 import { countComponentNodes, countLines, computeOptimizationSavings, generateStatsTable } from './stats.js';
 import { createPipelineSpinners } from '../ui/progress.js';
@@ -77,7 +77,7 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
 
     let hints;
     if (options.aiEnhance) {
-      const { createAiDetector } = await import('@html-native/semantic-analyzer/ai');
+      const { createAiDetector } = await import('@motarjim/semantic-analyzer/ai');
       const aiDetector = createAiDetector(options.aiModel ? { model: options.aiModel } : undefined);
       hints = await aiDetector(styledNodes);
     } else {

@@ -8,7 +8,7 @@ Parses CSS stylesheets, matches selectors to HTML nodes, and resolves computed s
 
 **Engine:** [PostCSS](https://postcss.org/) — industry-standard CSS parser with excellent spec compliance.  
 **File:** `packages/css-analyzer/index.ts`  
-**Package:** `@html-native/css-analyzer`
+**Package:** `@motarjim/css-analyzer`
 
 ## Exported Functions
 
@@ -25,7 +25,7 @@ Parses a CSS string into a structured stylesheet object.
 
 **Example:**
 ```typescript
-import { parseCss } from '@html-native/css-analyzer';
+import { parseCss } from '@motarjim/css-analyzer';
 
 const sheet = parseCss(`
   .card { padding: 16px; border-radius: 8px; }

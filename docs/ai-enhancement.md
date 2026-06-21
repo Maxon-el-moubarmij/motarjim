@@ -36,20 +36,20 @@ StyledNode[]
 
 ```bash
 # Basic usage with default model
-html-native convert --input page.html --css styles.css --target flutter --ai-enhance
+motarjim convert --input page.html --css styles.css --target flutter --ai-enhance
 
 # Custom model
-html-native convert --input page.html --css styles.css --target compose --ai-enhance --ai-model llama3.2
+motarjim convert --input page.html --css styles.css --target compose --ai-enhance --ai-model llama3.2
 
 # Custom Ollama endpoint
 export OLLAMA_HOST=http://my-server:11434
-html-native convert --input page.html --css styles.css --target swiftui --ai-enhance
+motarjim convert --input page.html --css styles.css --target swiftui --ai-enhance
 ```
 
 ### Programmatic
 
 ```typescript
-import { createAiDetector } from '@html-native/semantic-analyzer/ai';
+import { createAiDetector } from '@motarjim/semantic-analyzer/ai';
 
 const detector = createAiDetector({
   model: 'llama3.2',          // default: qwen2.5:7b

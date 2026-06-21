@@ -1,6 +1,6 @@
-import type { UiNode, GenerateResult, PlatformTarget, Result } from '@html-native/shared';
-import { countNodes, escapeString, NodeEmitter, walkTree } from '@html-native/generator-core';
-import { DiagnosticBag } from '@html-native/shared/diagnostics.js';
+import type { UiNode, GenerateResult, PlatformTarget, Result } from '@motarjim/shared';
+import { countNodes, escapeString, NodeEmitter, walkTree } from '@motarjim/generator-core';
+import { DiagnosticBag } from '@motarjim/shared/diagnostics.js';
 
 const swiftuiEmitter: NodeEmitter = {
   indentUnit: '    ',

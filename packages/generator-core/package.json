@@ -1,5 +1,5 @@
 {
-  "name": "@html-native/generator-core",
+  "name": "@motarjim/generator-core",
   "version": "0.1.0",
   "private": true,
   "main": "index.ts",
@@ -8,6 +8,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@html-native/shared": "0.1.0"
+    "@motarjim/shared": "0.1.0"
   }
 }

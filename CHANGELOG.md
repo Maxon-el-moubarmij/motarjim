@@ -15,7 +15,7 @@
 
 ### Changed
 
-- **Extracted `@html-native/generator-core`**: Shared traversal (`walkTree`),
+- **Extracted `@motarjim/generator-core`**: Shared traversal (`walkTree`),
   `NodeEmitter` interface, `countNodes`, `escapeString`/`escapeStringExtra`,
   `findTextLabel`, `getNonTextChildren`. Each platform generator implements
   `NodeEmitter` instead of duplicating the tree-walk switch. 130+ lines of

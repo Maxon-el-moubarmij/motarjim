@@ -11,7 +11,7 @@ export function createProgram(): Command {
   const program = new Command();
 
   program
-    .name('html-native')
+    .name('motarjim')
     .description('Convert HTML/CSS to native UI code')
     .version('0.1.0');
 

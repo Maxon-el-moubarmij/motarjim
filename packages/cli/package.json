@@ -1,25 +1,25 @@
 {
-  "name": "@html-native/cli",
+  "name": "@motarjim/cli",
   "version": "0.1.0",
   "private": true,
   "main": "index.ts",
   "types": "index.ts",
   "bin": {
-    "html-native": "../../dist/cli/index.js"
+    "motarjim": "../../dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc"
   },
   "dependencies": {
-    "@html-native/shared": "0.1.0",
-    "@html-native/parser": "0.1.0",
-    "@html-native/css-analyzer": "0.1.0",
-    "@html-native/semantic-analyzer": "0.1.0",
-    "@html-native/ir": "0.1.0",
-    "@html-native/optimizer": "0.1.0",
-    "@html-native/generator-flutter": "0.1.0",
-    "@html-native/generator-compose": "0.1.0",
-    "@html-native/generator-swiftui": "0.1.0",
+    "@motarjim/shared": "0.1.0",
+    "@motarjim/parser": "0.1.0",
+    "@motarjim/css-analyzer": "0.1.0",
+    "@motarjim/semantic-analyzer": "0.1.0",
+    "@motarjim/ir": "0.1.0",
+    "@motarjim/optimizer": "0.1.0",
+    "@motarjim/generator-flutter": "0.1.0",
+    "@motarjim/generator-compose": "0.1.0",
+    "@motarjim/generator-swiftui": "0.1.0",
     "commander": "^12.0.0",
     "inquirer": "^9.3.7",
     "chokidar": "^4.0.3",

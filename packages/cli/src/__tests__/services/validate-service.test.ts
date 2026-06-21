@@ -42,7 +42,7 @@ describe('validateInput', () => {
   });
 
   it('validates existing HTML files', () => {
-    const dir = join(tmpdir(), `html-native-test-${randomUUID()}`);
+    const dir = join(tmpdir(), `motarjim-test-${randomUUID()}`);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
     const file = join(dir, 'test.html');
     writeFileSync(file, '<!DOCTYPE html><html><body><p>Hello</p></body></html>', 'utf-8');

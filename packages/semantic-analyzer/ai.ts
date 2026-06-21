@@ -10,7 +10,7 @@
 // Must never generate platform code — only semantic hints.
 
 import { z } from 'zod';
-import type { StyledNode, SemanticHint, HtmlNode, NormalizedHint, AiDetectorConfig } from '@html-native/shared';
+import type { StyledNode, SemanticHint, HtmlNode, NormalizedHint, AiDetectorConfig } from '@motarjim/shared';
 import { normalizeSemantics, type SemanticDetector } from './index.js';
 
 function unwrapNormalizeSemantics(nodes: StyledNode[]): NormalizedHint[] {

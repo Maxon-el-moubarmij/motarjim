@@ -8,7 +8,7 @@ Identifies high-level UI components from HTML structure, class names, and comput
 
 **File:** `packages/semantic-analyzer/index.ts`  
 **AI variant:** `packages/semantic-analyzer/ai.ts`  
-**Package:** `@html-native/semantic-analyzer`
+**Package:** `@motarjim/semantic-analyzer`
 
 ## Exported Functions
 

@@ -7,7 +7,7 @@ Transforms the IR tree to reduce redundancy and simplify structure before code g
 ## Implementation
 
 **File:** `packages/optimizer/index.ts`  
-**Package:** `@html-native/optimizer`
+**Package:** `@motarjim/optimizer`
 
 ## Exported Functions
 
@@ -54,7 +54,7 @@ The default set of passes, applied in order:
 The optimizer supports custom pass arrays via the `passes` parameter:
 
 ```typescript
-import { optimize, OptimizationPass } from '@html-native/optimizer';
+import { optimize, OptimizationPass } from '@motarjim/optimizer';
 
 const myPass: OptimizationPass = {
   name: 'customPass',

@@ -7,7 +7,7 @@ import { PHASES, CompilerError } from './types.js';
 import { PassManager } from './pass-manager.js';
 import { PluginRegistry } from './plugin-api.js';
 import type { MotarjimPlugin, GeneratorFactory } from './plugin-api.js';
-import type { SemanticRule, PlatformTarget } from '@html-native/shared';
+import type { SemanticRule, PlatformTarget } from '@motarjim/shared';
 
 export class PipelineExecutor {
   private passManager: PassManager;
@@ -376,7 +376,7 @@ export class PipelineExecutor {
     return critical.includes(phaseId);
   }
 
-  private toDiagnosticPhase(phaseId: PhaseId): import('@html-native/shared').DiagnosticPhase {
+  private toDiagnosticPhase(phaseId: PhaseId): import('@motarjim/shared').DiagnosticPhase {
     switch (phaseId) {
       case 'parse': return 'parser';
       case 'style': return 'css';

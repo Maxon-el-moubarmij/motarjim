@@ -1,5 +1,5 @@
-import type { Diagnostic } from '@html-native/shared';
-import { formatDiagnostics } from '@html-native/shared/diagnostics.js';
+import type { Diagnostic } from '@motarjim/shared';
+import { formatDiagnostics } from '@motarjim/shared/diagnostics.js';
 import type { ValidationIssue } from '../types.js';
 import { PipelineError } from './pipeline.js';
 

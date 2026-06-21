@@ -22,7 +22,7 @@ A clear and concise description of the bug.
 
 **Command:**
 ```bash
-html-native convert --input test.html --css test.css --target flutter
+motarjim convert --input test.html --css test.css --target flutter
 ```
 
 ## Expected Behavior

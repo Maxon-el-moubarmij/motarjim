@@ -8,7 +8,7 @@ Converts raw HTML strings into a typed `HtmlNode` abstract syntax tree (AST) for
 
 **Engine:** [parse5](https://github.com/inikulin/parse5) — the same HTML parser used by jsdom, compliant with the HTML spec.  
 **File:** `packages/parser/index.ts`  
-**Package:** `@html-native/parser`
+**Package:** `@motarjim/parser`
 
 ## Exported Functions
 
@@ -26,7 +26,7 @@ Parses a full HTML document and returns the `<body>` contents as an `HtmlNode` t
 
 **Example:**
 ```typescript
-import { parseHtml } from '@html-native/parser';
+import { parseHtml } from '@motarjim/parser';
 
 const ast = parseHtml('<div class="container"><h1>Hello</h1></div>');
 // Returns:
@@ -65,7 +65,7 @@ Parses an HTML fragment (not a full document) and returns an array of top-level 
 
 **Example:**
 ```typescript
-import { parseFragment } from '@html-native/parser';
+import { parseFragment } from '@motarjim/parser';
 
 const nodes = parseFragment('<p>Para 1</p><p>Para 2</p>');
 // Returns two HtmlNode elements

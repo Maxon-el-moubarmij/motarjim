@@ -2,7 +2,7 @@ import type {
   HtmlNode, CssStylesheet, StyledNode, SemanticHint,
   NormalizedHint, AccessibilityTree, AccessibilityInfo,
   UiNode, GenerateResult, PlatformTarget, Diagnostic,
-} from '@html-native/shared';
+} from '@motarjim/shared';
 
 // ── Phase System ──────────────────────────────────────────
 

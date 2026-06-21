@@ -84,12 +84,12 @@ export async function initCommand(): Promise<void> {
     }
   }
 
-  const configPath = join(root, 'html-native.config.json');
+  const configPath = join(root, 'motarjim.config.json');
   if (!existsSync(configPath)) {
     writeFileSync(configPath, CONFIG_JSON, 'utf-8');
-    console.log('  Created html-native.config.json');
+    console.log('  Created motarjim.config.json');
   } else {
-    console.log('  html-native.config.json already exists');
+    console.log('  motarjim.config.json already exists');
   }
 
   const htmlPath = join(root, 'designs', 'index.html');
@@ -111,5 +111,5 @@ export async function initCommand(): Promise<void> {
   console.log('\nProject initialized successfully!');
   console.log('\nNext steps:');
   console.log('  1. Edit designs/index.html and designs/styles.css');
-  console.log('  2. Run: html-native convert');
+  console.log('  2. Run: motarjim convert');
 }

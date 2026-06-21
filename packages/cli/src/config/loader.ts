@@ -1,11 +1,11 @@
 import { cosmiconfig } from 'cosmiconfig';
 import type { CliConfig } from '../types.js';
 
-const explorer = cosmiconfig('html-native', {
+const explorer = cosmiconfig('motarjim', {
   searchPlaces: [
-    'html-native.config.json',
-    'html-native.config.js',
-    'html-native.config.ts',
+    'motarjim.config.json',
+    'motarjim.config.js',
+    'motarjim.config.ts',
     '.html-nativrc',
     '.html-nativrc.json',
   ],

@@ -7,7 +7,7 @@ Generates Swift code using SwiftUI (iOS 17+). Output is a `struct` conforming to
 ## Implementation
 
 **File:** `packages/generators/swiftui/index.ts`  
-**Package:** `@html-native/generator-swiftui`
+**Package:** `@motarjim/generator-swiftui`
 
 ## Exported Function
 

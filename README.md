@@ -90,34 +90,34 @@ npm install
 
 ```bash
 # Minimal (auto-detect everything)
-html-native convert
+motarjim convert
 
 # Specify input only
-html-native convert index.html
+motarjim convert index.html
 
 # Full manual configuration
-html-native convert index.html --css styles.css --target flutter --output lib/generated.dart
+motarjim convert index.html --css styles.css --target flutter --output lib/generated.dart
 
 # Auto-detect target from output extension
-html-native convert index.html --output home.kt
+motarjim convert index.html --output home.kt
 
 # Project initialization
-html-native init
+motarjim init
 
 # Watch mode (auto-regenerate on changes)
-html-native watch --input designs/index.html --target flutter
+motarjim watch --input designs/index.html --target flutter
 
 # Batch convert all HTML files in a directory
-html-native batch designs/ --target flutter
+motarjim batch designs/ --target flutter
 
 # Validate HTML/CSS before converting
-html-native validate index.html --css styles.css
+motarjim validate index.html --css styles.css
 
 # Explain the compilation pipeline
-html-native explain
+motarjim explain
 
 # Scaffold a project from a template
-html-native new landing-page
+motarjim new landing-page
 ```
 
 ## Examples
@@ -220,10 +220,10 @@ struct GeneratedView: View {
 Optional Ollama integration for improved component detection:
 
 ```bash
-html-native convert index.html --ai-enhance
+motarjim convert index.html --ai-enhance
 
 # With custom model
-html-native convert index.html --ai-enhance --ai-model llama3
+motarjim convert index.html --ai-enhance --ai-model llama3
 ```
 
 See [docs/ai-enhancement.md](docs/ai-enhancement.md) for setup instructions.

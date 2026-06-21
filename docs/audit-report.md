@@ -36,7 +36,7 @@
 ### H-01: Missing `parse5` dependency in parser package
 
 - **File:** `packages/parser/package.json:10-12`
-- **Root cause:** `packages/parser/index.ts` imports `parse5` at runtime, but `packages/parser/package.json` only declared `@html-native/shared`. Dependency was hoisted from root, breaking isolated builds.
+- **Root cause:** `packages/parser/index.ts` imports `parse5` at runtime, but `packages/parser/package.json` only declared `@motarjim/shared`. Dependency was hoisted from root, breaking isolated builds.
 - **Fix:** Added `"parse5": "^7.1.2"` to `packages/parser/package.json` dependencies.
 - **Impact:** Package is now self-contained. Isolated builds and potential future publishing work correctly.
 
@@ -133,7 +133,7 @@
 ### L-03: Dead `UiNode` re-export from ir package
 
 - **File:** `packages/ir/index.ts:3`
-- **Fix:** Removed `export { UiNode }` — all consumers import from `@html-native/shared` directly.
+- **Fix:** Removed `export { UiNode }` — all consumers import from `@motarjim/shared` directly.
 - **Impact:** None.
 
 ### L-04: Dead `CliOptions` interface in shared
