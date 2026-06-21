@@ -1,11 +1,10 @@
-import { UiNode } from '@html-native/shared';
+import type { UiNode, Result } from '@html-native/shared';
+import { DiagnosticBag, ok } from '@html-native/shared/diagnostics.js';
 
 export interface OptimizationPass {
   name: string;
   run: (node: UiNode) => UiNode;
 }
-
-// -- Existing passes (preserved) --
 
 function mergeTextNodes(node: UiNode): UiNode {
   const merged: UiNode[] = [];
@@ -49,12 +48,9 @@ function removeEmptyText(node: UiNode): UiNode {
   return { ...node, children };
 }
 
-// -- New passes --
-
 function removeRedundantNesting(node: UiNode): UiNode {
   const children = node.children.map(removeRedundantNesting);
 
-  // If a Container wraps another Container with no additional properties, merge them
   if (
     (node.type === 'Container' || node.type === 'Unknown') &&
     children.length === 1 &&
@@ -69,7 +65,6 @@ function removeRedundantNesting(node: UiNode): UiNode {
     };
   }
 
-  // If a single-child Column/Row with no props collapses to its child
   if (
     (node.type === 'Column' || node.type === 'Row') &&
     children.length === 1 &&
@@ -84,7 +79,6 @@ function removeRedundantNesting(node: UiNode): UiNode {
 function simplifyLayout(node: UiNode): UiNode {
   const children = node.children.map(simplifyLayout);
 
-  // Text node inside a Container with no other children -> just Text
   if (
     (node.type === 'Container' || node.type === 'Unknown') &&
     children.length === 1 &&
@@ -94,7 +88,6 @@ function simplifyLayout(node: UiNode): UiNode {
     return children[0];
   }
 
-  // Empty Container -> Spacer or Text('')
   if (
     (node.type === 'Container' || node.type === 'Unknown') &&
     children.length === 0 &&
@@ -104,7 +97,6 @@ function simplifyLayout(node: UiNode): UiNode {
     return { type: 'Spacer', properties: {}, children: [] };
   }
 
-  // Button with only Text child -> preserve, but merge value
   if (node.type === 'Button' && children.length === 1 && children[0].type === 'Text') {
     const textVal = children[0].value ?? '';
     return {
@@ -134,7 +126,6 @@ function mergeSemanticNodes(node: UiNode): UiNode {
       !child.value &&
       !last.value
     ) {
-      // Merge children of adjacent nodes with same semantic intent
       last.children.push(...child.children);
     } else {
       merged.push({ ...child });
@@ -167,8 +158,6 @@ function optimizeForResponsive(node: UiNode): UiNode {
   return { ...node, children };
 }
 
-// -- Default passes (existing + new) --
-
 export const defaultPasses: OptimizationPass[] = [
   { name: 'removeEmptyText', run: removeEmptyText },
   { name: 'mergeTextNodes', run: mergeTextNodes },
@@ -179,10 +168,17 @@ export const defaultPasses: OptimizationPass[] = [
   { name: 'optimizeForResponsive', run: optimizeForResponsive },
 ];
 
-export function optimize(ir: UiNode, passes: OptimizationPass[] = defaultPasses): UiNode {
+export function optimize(ir: UiNode, passes: OptimizationPass[] = defaultPasses): Result<UiNode> {
+  const bag = new DiagnosticBag();
+
+  if (passes.length === 0) {
+    bag.addWarning('OPT_001', 'No optimization passes provided, returning IR unchanged', 'optimizer');
+  }
+
   let node = { ...ir };
   for (const pass of passes) {
     node = pass.run(node);
   }
-  return node;
+
+  return bag.toResult(node);
 }
