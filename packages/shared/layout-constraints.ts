@@ -1,11 +1,18 @@
-export type IntrinsicSizeKind = 'min-content' | 'max-content' | 'fit-content' | 'expand' | 'fixed';
+export type IntrinsicSizeKind = 'min-content' | 'max-content' | 'fit-content' | 'expand' | 'fixed' | 'auto';
 
 export type IntrinsicSize =
   | { kind: 'min-content' }
   | { kind: 'max-content' }
   | { kind: 'fit-content' }
   | { kind: 'expand' }
-  | { kind: 'fixed'; value: number };
+  | { kind: 'fixed'; value: number }
+  | { kind: 'auto' };
+
+export interface RelativeConstraintHint {
+  axis: 'width' | 'height';
+  edge: 'size' | 'min' | 'max';
+  percent: number;
+}
 
 export interface LayoutConstraints {
   minWidth?: number;
@@ -13,6 +20,7 @@ export interface LayoutConstraints {
   minHeight?: number;
   maxHeight?: number;
   intrinsicSize: IntrinsicSize;
+  relative?: readonly RelativeConstraintHint[];
 }
 
 export interface NormalizedLayoutConstraints {
@@ -21,6 +29,7 @@ export interface NormalizedLayoutConstraints {
   minHeight: number;
   maxHeight: number;
   intrinsicSize: IntrinsicSize;
+  relative: readonly RelativeConstraintHint[];
 }
 
 export const unconstrainedLayoutConstraints = (): LayoutConstraints => ({
@@ -39,5 +48,5 @@ export function normalizeConstraints(constraints: LayoutConstraints): Normalized
     throw new Error(`Invalid fixed intrinsic size: ${constraints.intrinsicSize.value}`);
   }
 
-  return { minWidth, maxWidth, minHeight, maxHeight, intrinsicSize: constraints.intrinsicSize };
+  return { minWidth, maxWidth, minHeight, maxHeight, intrinsicSize: constraints.intrinsicSize, relative: constraints.relative ?? [] };
 }
