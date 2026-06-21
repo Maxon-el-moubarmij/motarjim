@@ -1,4 +1,4 @@
-import type { UiNode, StyledNode, SemanticHint, Result } from '@html-native/shared';
+import type { UiNode, StyledNode, SemanticHint, Result, SourceSpan } from '@html-native/shared';
 import { DiagnosticBag } from '@html-native/shared/diagnostics.js';
 
 export { enrichWithIntent, enrichWithIntentSync } from './ai-intent.js';
@@ -9,8 +9,11 @@ export function createIrNode(
   properties: Record<string, unknown> = {},
   children: UiNode[] = [],
   value?: string,
+  sourceSpan?: SourceSpan,
+  sourceHtmlTag?: string,
+  originalNodeId?: string,
 ): UiNode {
-  return { type, properties, children, value };
+  return { type, properties, children, value, sourceSpan, sourceHtmlTag, originalNodeId };
 }
 
 export function styledNodeToIr(styled: StyledNode, hints: SemanticHint[] = []): Result<UiNode> {
@@ -66,7 +69,11 @@ export function styledNodeToIr(styled: StyledNode, hints: SemanticHint[] = []): 
       return childResult.ok ? childResult.value : createIrNode('Unknown', {}, [], '');
     });
 
-  const node = createIrNode(type, props, children, effectiveValue);
+  const node = createIrNode(type, props, children, effectiveValue,
+    styled.node.sourceSpan,
+    styled.node.tagName,
+    styled.node.nodeId,
+  );
   return bag.toResult(node);
 }
 

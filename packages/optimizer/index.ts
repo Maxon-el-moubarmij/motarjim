@@ -14,6 +14,13 @@ function mergeTextNodes(node: UiNode): UiNode {
       const prev = merged[merged.length - 1];
       prev.value = ((prev.value || '') + ' ' + (optimized.value || '')).trim();
       prev.properties.value = prev.value;
+      if (prev.sourceSpan && optimized.sourceSpan) {
+        prev.sourceSpan = {
+          file: prev.sourceSpan.file,
+          start: { ...prev.sourceSpan.start },
+          end: { ...optimized.sourceSpan.end },
+        };
+      }
     } else {
       merged.push(optimized);
     }
