@@ -1,3 +1,38 @@
+// -- Diagnostics System --
+
+export type DiagnosticSeverity = 'error' | 'warning' | 'info';
+
+export type DiagnosticPhase = 'parser' | 'css' | 'semantic' | 'ir' | 'optimizer' | 'generator';
+
+export interface SourceSpan {
+  file: string;
+  start: { line: number; column: number };
+  end: { line: number; column: number };
+}
+
+export interface Diagnostic {
+  code: string;
+  message: string;
+  severity: DiagnosticSeverity;
+  phase: DiagnosticPhase;
+  sourceSpan?: SourceSpan;
+}
+
+export type Result<T> =
+  | { ok: true; value: T; diagnostics: Diagnostic[] }
+  | { ok: false; diagnostics: Diagnostic[] };
+
+export interface DiagnosticBag {
+  diagnostics: Diagnostic[];
+  add(diagnostic: Diagnostic): void;
+  addError(code: string, message: string, phase: DiagnosticPhase, sourceSpan?: SourceSpan): void;
+  addWarning(code: string, message: string, phase: DiagnosticPhase, sourceSpan?: SourceSpan): void;
+  addInfo(code: string, message: string, phase: DiagnosticPhase, sourceSpan?: SourceSpan): void;
+  hasErrors(): boolean;
+  toResult<T>(value: T): Result<T>;
+  asResult(): Result<never>;
+}
+
 // -- HTML AST Types --
 
 export interface HtmlAttribute {
@@ -206,5 +241,7 @@ export interface AiDetectorConfig {
   enableEmbeddings?: boolean;
   embeddingModel?: string;
 }
+
+
 
 
