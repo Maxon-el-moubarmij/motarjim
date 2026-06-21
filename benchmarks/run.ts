@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-// Performance benchmark for html-native-engine.
+// Performance benchmark for motarjim.
 //
 // Measures parse-to-optimize pipeline time for ~1000 HTML nodes.
 // Target: under 500ms (pipeline only; code generation reported separately).
@@ -71,7 +71,7 @@ function countHtmlTags(html: string): number {
 // ---- Main ----
 
 function main(): void {
-  console.log('=== html-native-engine Performance Benchmark ===\n');
+  console.log('=== motarjim Performance Benchmark ===\n');
 
   // Load fixtures
   console.log('Loading fixture...');

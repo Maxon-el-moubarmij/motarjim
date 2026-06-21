@@ -2,7 +2,7 @@
 
 ## General
 
-### What is html-native-engine?
+### What is motarjim?
 
 A local-first compiler that converts HTML and CSS into native UI code for Flutter (Dart), Jetpack Compose (Kotlin), and SwiftUI (Swift). You write your UI in HTML/CSS and get platform-native source files.
 

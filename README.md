@@ -70,7 +70,7 @@ HTML + CSS
 
 Mobile teams face a choice: write UI code three times (Flutter + Compose + SwiftUI) or use a cross-platform framework that adds a runtime layer.
 
-html-native-engine offers a third path: write your UI structure in HTML/CSS, generate native code for each platform, and get the performance and idiomatic feel of hand-written platform code — without writing it three times.
+motarjim offers a third path: write your UI structure in HTML/CSS, generate native code for each platform, and get the performance and idiomatic feel of hand-written platform code — without writing it three times.
 
 ## Quick Start
 
@@ -78,7 +78,7 @@ html-native-engine offers a third path: write your UI structure in HTML/CSS, gen
 
 ```bash
 # From npm (when published)
-npm install -g html-native-engine
+npm install -g motarjim
 
 # From source
 git clone https://github.com/abdelrzz9/motarjim.git

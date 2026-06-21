@@ -37,7 +37,7 @@ What actually happens? Include error messages, stack traces, or unexpected outpu
 
 - OS: [e.g., macOS 14, Ubuntu 22.04]
 - Node.js version: `node --version`
-- Package version: `npm list html-native-engine`
+- Package version: `npm list motarjim`
 
 ## Generated Output (if applicable)
 

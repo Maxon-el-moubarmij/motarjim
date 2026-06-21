@@ -8,7 +8,7 @@
 
 ## Reporting a Vulnerability
 
-The html-native-engine project takes security seriously. If you discover a security vulnerability, please **do not** open a public GitHub issue.
+The motarjim project takes security seriously. If you discover a security vulnerability, please **do not** open a public GitHub issue.
 
 Instead, report it privately by emailing the project maintainers or opening a draft security advisory on GitHub.
 
@@ -28,7 +28,7 @@ You can expect an acknowledgment within 48 hours, and a detailed response within
 
 ### Local-First Architecture
 
-html-native-engine is a local-first compiler. It does not:
+motarjim is a local-first compiler. It does not:
 - Send any data to remote servers (except optional local Ollama API)
 - Require network access to function
 - Store or cache user HTML/CSS content persistently

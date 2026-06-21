@@ -1,6 +1,6 @@
 # Repository Audit Report
 
-**Project:** html-native-engine  
+**Project:** motarjim  
 **Date:** 2026-06-19  
 **Auditor:** Automated codebase scan  
 **Scope:** All packages, tests, benchmarks, configuration files

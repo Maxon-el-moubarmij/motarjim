@@ -5,7 +5,7 @@
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd html-native-engine
+cd motarjim
 
 # Install dependencies
 npm install
@@ -17,7 +17,7 @@ npm test
 ## Project Structure
 
 ```
-html-native-engine/
+motarjim/
 ├── packages/
 │   ├── shared/                 # Core types
 │   ├── parser/                 # HTML → HtmlNode

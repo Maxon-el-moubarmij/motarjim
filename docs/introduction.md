@@ -1,6 +1,6 @@
 # Introduction
 
-**html-native-engine** is a local-first compiler that converts HTML and CSS into native UI code for three mobile platforms:
+**motarjim** is a local-first compiler that converts HTML and CSS into native UI code for three mobile platforms:
 
 - **Flutter** (Dart)
 - **Jetpack Compose** (Kotlin)
@@ -12,7 +12,7 @@ Write your UI once in HTML/CSS — the language of the web — and generate plat
 
 ## Why Local-First?
 
-Unlike cloud-based converters, html-native-engine runs entirely on your machine:
+Unlike cloud-based converters, motarjim runs entirely on your machine:
 
 - **Zero data leaves your computer.** Your HTML and CSS never touch a remote server.
 - **No API keys, no accounts.** Install and run.

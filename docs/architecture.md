@@ -2,7 +2,7 @@
 
 ## Overview
 
-html-native-engine follows a classic compiler architecture with discrete, composable stages. Each stage transforms the input into a progressively more platform-independent representation, culminating in native UI code generation.
+motarjim follows a classic compiler architecture with discrete, composable stages. Each stage transforms the input into a progressively more platform-independent representation, culminating in native UI code generation.
 
 ```
 HTML + CSS
@@ -45,7 +45,7 @@ HTML + CSS
 ## Package Structure
 
 ```
-html-native-engine/
+motarjim/
 ├── packages/
 │   ├── shared/                 # Core types shared by all packages
 │   │   └── index.ts            # HtmlNode, StyledNode, UiNode, ResolvedStyles, SemanticHint

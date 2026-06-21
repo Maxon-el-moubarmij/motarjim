@@ -2,7 +2,7 @@
 
 ## Overview
 
-The compilation pipeline is the heart of html-native-engine. Each stage transforms the input and passes it to the next. The pipeline is fully synchronous and runs entirely in-process.
+The compilation pipeline is the heart of motarjim. Each stage transforms the input and passes it to the next. The pipeline is fully synchronous and runs entirely in-process.
 
 ## Stage Diagram
 

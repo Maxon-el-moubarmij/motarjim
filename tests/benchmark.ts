@@ -60,7 +60,7 @@ function countHtmlNodes(html: string): number {
   return (html.match(/<div|<section|<nav|<form|<h[12]|<p|<button|<input|<textarea|<ul|<li|<a/g) || []).length;
 }
 
-console.log('=== html-native-engine Benchmark ===\n');
+console.log('=== motarjim Benchmark ===\n');
 
 // Warm-up
 const warmup = generateLargeHtml(50);

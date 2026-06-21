@@ -114,11 +114,11 @@ When installed, `html-native` becomes globally available (requires `tsx` for Typ
 
 ```bash
 # From npm (when published)
-npm install -g html-native-engine
+npm install -g motarjim
 
 # From source
 git clone <repo>
-cd html-native-engine
+cd motarjim
 npm install
 npm run build
 ```
