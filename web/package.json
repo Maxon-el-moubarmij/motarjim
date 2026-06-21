@@ -1,0 +1,17 @@
+{
+  "name": "@html-native/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "@html-native/pipeline-core": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6"
+  }
+}

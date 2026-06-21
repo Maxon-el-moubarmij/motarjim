@@ -4,7 +4,9 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "packages/generators/*"
+    "packages/generators/*",
+     "web"
+
   ],
   "scripts": {
     "build": "tsc",
@@ -24,7 +26,6 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@types/express": "^5.0.6",
-    "express": "^5.2.1"
+    
   }
 }
