@@ -19,13 +19,16 @@ struct GeneratedView: View {
             .background(Color(.systemBackground))
             .cornerRadius(12)
             .shadow(radius: 4)
+            .accessibilityLabel("Fast Lightning fast performance")
         }
         Form {
             Text("Contact Us")
-            TextField("Input", text: .constant(""))
+            TextField("Your Name", text: .constant(""))
             .textFieldStyle(.roundedBorder)
-            TextField("Input", text: .constant(""))
+            .accessibilityHint("Your Name")
+            TextField("Your Email", text: .constant(""))
             .textFieldStyle(.roundedBorder)
+            .accessibilityHint("Your Email")
             Spacer()
             Button("Send Message") {
                 // action

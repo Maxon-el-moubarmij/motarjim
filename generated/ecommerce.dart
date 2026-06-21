@@ -30,6 +30,7 @@ class GeneratedView extends StatelessWidget {
     Text("Premium Wireless Headphones Experience crystal-clear audio with noise cancellation technology."),
     ElevatedButton(
             onPressed: () {},
+            semanticLabel: "Shop Now",
             child: Text("Shop Now"),
           ),
             ],
@@ -40,7 +41,10 @@ class GeneratedView extends StatelessWidget {
     Column(
         children: [
     Card(
-          child: Image.network("headphones.jpg"),
+          child: Image.network("headphones.jpg",
+          
+            semanticLabel: "Wireless Headphones",),
+          semanticLabel: "Wireless Headphones \$99.99 High-quality wireless audio with 30-hour battery life. Add to Cart",
         ),
         ],
       ),

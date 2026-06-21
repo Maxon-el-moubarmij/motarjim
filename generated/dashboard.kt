@@ -19,6 +19,9 @@ fun GeneratedView() {
                 ) {
                     Text(text = "Revenue $12,345 +12%")
                 }
+                    .semantics {
+                        contentDescription = "Revenue $12,345 +12%"
+                    }
             }
             Column {
                 Text(text = "© 2026 MyApp. All rights reserved.")

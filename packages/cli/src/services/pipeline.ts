@@ -3,6 +3,7 @@ import { resolve, dirname } from 'path';
 import { parseHtml } from '@html-native/parser';
 import { parseCss, applyStyles, analyzeLayoutIntents, buildResponsiveMetadata } from '@html-native/css-analyzer';
 import { detectSemantics } from '@html-native/semantic-analyzer';
+import { analyzeAccessibility } from '@html-native/accessibility-analyzer';
 import { styledNodeToIr, enrichWithIntent, enrichWithIntentSync } from '@html-native/ir';
 import { optimize } from '@html-native/optimizer';
 import { generate as generateFlutter } from '@html-native/generator-flutter';
@@ -85,6 +86,12 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
     }
     spinners.succeed('Semantic Analysis');
 
+    spinners.start('Accessibility Analysis');
+    const a11yResult = analyzeAccessibility(styledNodes);
+    const a11y = requireOk(a11yResult, 'accessibility');
+    const a11yIssues = a11y.issues.length;
+    spinners.succeed('Accessibility Analysis');
+
     spinners.start('IR Conversion');
     const rootStyled: StyledNode = {
       node: ast,
@@ -92,7 +99,7 @@ export async function runPipeline(options: ResolvedOptions): Promise<PipelineRes
       children: styledNodes,
       layoutIntent: { type: 'Stack', properties: {}, confidence: 1 },
     };
-    const irResult = styledNodeToIr(rootStyled, hints);
+    const irResult = styledNodeToIr(rootStyled, hints, a11y.perNodeInfo);
     let ir = requireOk(irResult, 'ir');
 
     if (responsiveMetadata.breakpoints.length > 0) {

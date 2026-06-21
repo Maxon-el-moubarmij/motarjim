@@ -13,6 +13,7 @@ struct GeneratedView: View {
                 .background(Color(.systemBackground))
                 .cornerRadius(12)
                 .shadow(radius: 4)
+                .accessibilityLabel("Revenue $12,345 +12%")
             }
             VStack {
                 Text("© 2026 MyApp. All rights reserved.")

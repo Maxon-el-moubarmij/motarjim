@@ -17,6 +17,10 @@ fun GeneratedView() {
                 ) {
                     Text(text = "Shop Now")
                 }
+                    
+                    .semantics {
+                        contentDescription = "Shop Now"
+                    }
             }
         }
         Column {
@@ -28,6 +32,9 @@ fun GeneratedView() {
                     contentDescription = "Wireless Headphones"
                 )
             }
+                .semantics {
+                    contentDescription = "Wireless Headphones $99.99 High-quality wireless audio with 30-hour battery life. Add to Cart"
+                }
         }
         Column {
             Text(text = "© 2026 ShopStore. All rights reserved.")

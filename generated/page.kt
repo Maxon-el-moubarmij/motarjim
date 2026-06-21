@@ -17,6 +17,10 @@ fun GeneratedView() {
                 ) {
                     Text(text = "Get Started")
                 }
+                    
+                    .semantics {
+                        contentDescription = "Get Started"
+                    }
             }
         }
         Column {
@@ -25,18 +29,23 @@ fun GeneratedView() {
             ) {
                 Text(text = "Fast Lightning fast performance")
             }
+                .semantics {
+                    contentDescription = "Fast Lightning fast performance"
+                }
         }
         Column {
             Text(text = "Contact Us")
             OutlinedTextField(
                 value = "",
                 onValueChange = { },
-                label = { Text("Input") }
+                label = { Text("Your Name") },
+                placeholder = { Text("Your Name") }
             )
             OutlinedTextField(
                 value = "",
                 onValueChange = { },
-                label = { Text("Input") }
+                label = { Text("Your Email") },
+                placeholder = { Text("Your Email") }
             )
             Spacer(modifier = Modifier.size(0.dp))
             Button(
@@ -44,6 +53,10 @@ fun GeneratedView() {
             ) {
                 Text(text = "Send Message")
             }
+                
+                .semantics {
+                    contentDescription = "Send Message"
+                }
         }
         Column {
             Text(text = "© 2026 My App. All rights reserved.")

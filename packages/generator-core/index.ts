@@ -46,16 +46,16 @@ export function getNonTextChildren(node: UiNode): UiNode[] {
 export interface NodeEmitter {
   indentUnit: string;
   emitText(node: UiNode, indent: string): string;
-  emitButton(indent: string, label: string, children: string[]): string;
+  emitButton(node: UiNode, indent: string, label: string, children: string[]): string;
   emitRow(indent: string, children: string[]): string;
   emitColumn(indent: string, children: string[]): string;
   emitContainer(node: UiNode, indent: string, children: string[]): string;
-  emitCard(indent: string, children: string[]): string;
+  emitCard(node: UiNode, indent: string, children: string[]): string;
   emitImage(node: UiNode, indent: string): string;
-  emitTextField(indent: string): string;
+  emitTextField(node: UiNode, indent: string): string;
   emitAppBar(indent: string, title: string): string;
   emitScrollView(indent: string, children: string[]): string;
-  emitForm(indent: string, children: string[]): string;
+  emitForm(node: UiNode, indent: string, children: string[]): string;
   emitFooter(indent: string, children: string[]): string;
   emitDefault(node: UiNode, indent: string, children: string[]): string;
 }
@@ -91,7 +91,7 @@ export function walkTree(node: UiNode, emitter: NodeEmitter, level: number = 0, 
       const label = findTextLabel(node) || 'Button';
       const nonTextChildren = getNonTextChildren(node);
       const rendered = nonTextChildren.map(c => walkTree(c, emitter, nextLevel, sourceComments));
-      result = emitter.emitButton(i, label, rendered);
+      result = emitter.emitButton(node, i, label, rendered);
       break;
     }
 
@@ -115,7 +115,7 @@ export function walkTree(node: UiNode, emitter: NodeEmitter, level: number = 0, 
     }
 
     case 'Card':
-      result = emitter.emitCard(i, walkChildren(node, emitter, nextLevel, sourceComments));
+      result = emitter.emitCard(node, i, walkChildren(node, emitter, nextLevel, sourceComments));
       break;
 
     case 'Image':
@@ -123,7 +123,7 @@ export function walkTree(node: UiNode, emitter: NodeEmitter, level: number = 0, 
       break;
 
     case 'TextField':
-      result = emitter.emitTextField(i);
+      result = emitter.emitTextField(node, i);
       break;
 
     case 'ListView':
@@ -133,7 +133,7 @@ export function walkTree(node: UiNode, emitter: NodeEmitter, level: number = 0, 
       break;
 
     case 'Form':
-      result = emitter.emitForm(i, walkChildren(node, emitter, nextLevel, sourceComments));
+      result = emitter.emitForm(node, i, walkChildren(node, emitter, nextLevel, sourceComments));
       break;
 
     case 'Footer':

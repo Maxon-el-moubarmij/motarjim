@@ -17,10 +17,12 @@ struct GeneratedView: View {
                 Image("headphones.jpg")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .accessibilityLabel("Wireless Headphones")
             }
             .background(Color(.systemBackground))
             .cornerRadius(12)
             .shadow(radius: 4)
+            .accessibilityLabel("Wireless Headphones $99.99 High-quality wireless audio with 30-hour battery life. Add to Cart")
         }
         VStack {
             Text("© 2026 ShopStore. All rights reserved.")

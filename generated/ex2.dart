@@ -5,6 +5,7 @@ class GeneratedView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Text("Hello World HTML and CSS in a single file."),
+      semanticLabel: "Hello World HTML and CSS in a single file. Get Started",
     );
   }
 }

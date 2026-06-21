@@ -2,7 +2,7 @@
 
 export type DiagnosticSeverity = 'error' | 'warning' | 'info';
 
-export type DiagnosticPhase = 'parser' | 'css' | 'semantic' | 'ir' | 'optimizer' | 'generator';
+export type DiagnosticPhase = 'parser' | 'css' | 'semantic' | 'accessibility' | 'ir' | 'optimizer' | 'generator';
 
 export interface SourceSpan {
   file: string;
@@ -229,6 +229,7 @@ export interface UiNode {
   value?: string;
   semanticIntent?: SemanticIntent;
   responsiveMetadata?: ResponsiveMetadata;
+  accessibility?: AccessibilityInfo;
 }
 
 // -- Platform target --
@@ -262,6 +263,40 @@ export interface ResponsiveHint {
   condition: 'min-width' | 'max-width' | 'min-height' | 'max-height';
   value: string;
   styles: ResolvedStyles;
+}
+
+// -- Accessibility types --
+
+export interface AccessibilityInfo {
+  role?: string;
+  label?: string;
+  hint?: string;
+  focusOrder?: number;
+  hidden: boolean;
+}
+
+export interface AccessibilityIssue {
+  code: string;
+  message: string;
+  severity: 'error' | 'warning' | 'info';
+  nodeId: string;
+  tagName: string;
+  sourceSpan?: SourceSpan;
+}
+
+export interface AccessibilityTree {
+  issues: AccessibilityIssue[];
+  tree: AccessibilityNode[];
+}
+
+export interface AccessibilityNode {
+  nodeId: string;
+  role: string;
+  label?: string;
+  hint?: string;
+  focusOrder?: number;
+  children: AccessibilityNode[];
+  issues: AccessibilityIssue[];
 }
 
 // -- AI-specific types --

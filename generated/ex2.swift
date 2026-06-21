@@ -8,5 +8,6 @@ struct GeneratedView: View {
     .background(Color(.systemBackground))
     .cornerRadius(12)
     .shadow(radius: 4)
+    .accessibilityLabel("Hello World HTML and CSS in a single file. Get Started")
     }
 }

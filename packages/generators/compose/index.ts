@@ -10,12 +10,17 @@ const composeEmitter: NodeEmitter = {
     return `${indent}Text(text = "${escapeString(val)}")`;
   },
 
-  emitButton(indent: string, label: string, children: string[]): string {
+  emitButton(node: UiNode, indent: string, label: string, children: string[]): string {
     const onClick = 'onClick = { }';
     const content = children.length
       ? children.join('\n')
       : `${indent}    Text(text = "${escapeString(label)}")`;
-    return `${indent}Button(\n${indent}    ${onClick}\n${indent}) {\n${content}\n${indent}}`;
+    const a11y = node.accessibility;
+    const semantics = a11y?.role || a11y?.label
+      ? `\n${indent}    .semantics {\n${indent}        ${a11y?.role ? `contentDescription = "${escapeString(a11y.label || label)}"` : ''}\n${indent}    }`
+      : '';
+    const role = a11y?.role ? `\n${indent}    ${a11y.role !== 'button' ? `.semantics { contentDescription = "${escapeString(a11y.label || label)}" }` : ''}` : '';
+    return `${indent}Button(\n${indent}    ${onClick}\n${indent}) {\n${content}\n${indent}}${role}${semantics}`;
   },
 
   emitRow(indent: string, children: string[]): string {
@@ -33,18 +38,26 @@ const composeEmitter: NodeEmitter = {
     return `${indent}Box(modifier = Modifier) {\n${children.join('\n')}\n${indent}}`;
   },
 
-  emitCard(indent: string, children: string[]): string {
+  emitCard(node: UiNode, indent: string, children: string[]): string {
     const child = children[0] || '';
-    return `${indent}Card(\n${indent}    modifier = Modifier\n${indent}) {\n${child}\n${indent}}`;
+    const a11y = node.accessibility;
+    const semantics = a11y?.label
+      ? `\n${indent}    .semantics {\n${indent}        contentDescription = "${escapeString(a11y.label)}"\n${indent}    }`
+      : '';
+    return `${indent}Card(\n${indent}    modifier = Modifier\n${indent}) {\n${child}\n${indent}}${semantics}`;
   },
 
   emitImage(node: UiNode, indent: string): string {
     const src = (node.properties.src as string) || '';
-    return `${indent}Image(\n${indent}    painter = painterResource(id = R.drawable.${escapeString(src)}),\n${indent}    contentDescription = "${escapeString((node.properties.alt as string) || '')}"\n${indent})`;
+    const alt = (node.accessibility?.label || node.properties.alt as string || '') as string;
+    return `${indent}Image(\n${indent}    painter = painterResource(id = R.drawable.${escapeString(src)}),\n${indent}    contentDescription = "${escapeString(alt)}"\n${indent})`;
   },
 
-  emitTextField(indent: string): string {
-    return `${indent}OutlinedTextField(\n${indent}    value = "",\n${indent}    onValueChange = { },\n${indent}    label = { Text("Input") }\n${indent})`;
+  emitTextField(node: UiNode, indent: string): string {
+    const a11y = node.accessibility;
+    const labelText = escapeString(a11y?.label || 'Input');
+    const hintText = a11y?.hint ? `,\n${indent}    placeholder = { Text("${escapeString(a11y.hint)}") }` : '';
+    return `${indent}OutlinedTextField(\n${indent}    value = "",\n${indent}    onValueChange = { },\n${indent}    label = { Text("${labelText}") }${hintText}\n${indent})`;
   },
 
   emitAppBar(indent: string, title: string): string {
@@ -56,7 +69,7 @@ const composeEmitter: NodeEmitter = {
     return `${indent}LazyColumn {\n${children.join('\n')}\n${indent}}`;
   },
 
-  emitForm(indent: string, children: string[]): string {
+  emitForm(node: UiNode, indent: string, children: string[]): string {
     return `${indent}Column {\n${children.join('\n')}\n${indent}}`;
   },
 

@@ -18,6 +18,7 @@ class GeneratedView extends StatelessWidget {
           children: [
     Card(
             child: Text("Revenue \$12,345 +12%"),
+            semanticLabel: "Revenue \$12,345 +12%",
           ),
           ],
         ),

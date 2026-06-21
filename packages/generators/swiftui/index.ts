@@ -10,9 +10,16 @@ const swiftuiEmitter: NodeEmitter = {
     return `${indent}Text("${escapeString(val)}")`;
   },
 
-  emitButton(indent: string, label: string, _children: string[]): string {
+  emitButton(node: UiNode, indent: string, label: string, _children: string[]): string {
     const action = `${indent}    // action`;
-    return `${indent}Button("${escapeString(label)}") {\n${action}\n${indent}}`;
+    const a11y = node.accessibility;
+    const labelMod = a11y?.label && a11y.label !== label
+      ? `\n${indent}.accessibilityLabel("${escapeString(a11y.label)}")`
+      : '';
+    const hintMod = a11y?.hint
+      ? `\n${indent}.accessibilityHint("${escapeString(a11y.hint)}")`
+      : '';
+    return `${indent}Button("${escapeString(label)}") {\n${action}\n${indent}}${labelMod}${hintMod}`;
   },
 
   emitRow(indent: string, children: string[]): string {
@@ -30,18 +37,31 @@ const swiftuiEmitter: NodeEmitter = {
     return `${indent}VStack {\n${children.join('\n')}\n${indent}}`;
   },
 
-  emitCard(indent: string, children: string[]): string {
+  emitCard(node: UiNode, indent: string, children: string[]): string {
     const child = children[0] || '';
-    return `${indent}VStack {\n${child}\n${indent}}\n${indent}.background(Color(.systemBackground))\n${indent}.cornerRadius(12)\n${indent}.shadow(radius: 4)`;
+    const a11y = node.accessibility;
+    const labelMod = a11y?.label
+      ? `\n${indent}.accessibilityLabel("${escapeString(a11y.label)}")`
+      : '';
+    return `${indent}VStack {\n${child}\n${indent}}\n${indent}.background(Color(.systemBackground))\n${indent}.cornerRadius(12)\n${indent}.shadow(radius: 4)${labelMod}`;
   },
 
   emitImage(node: UiNode, indent: string): string {
     const src = (node.properties.src as string) || '';
-    return `${indent}Image("${escapeString(src)}")\n${indent}.resizable()\n${indent}.aspectRatio(contentMode: .fit)`;
+    const alt = (node.accessibility?.label || node.properties.alt as string || '') as string;
+    const labelMod = alt
+      ? `\n${indent}.accessibilityLabel("${escapeString(alt)}")`
+      : '';
+    return `${indent}Image("${escapeString(src)}")\n${indent}.resizable()\n${indent}.aspectRatio(contentMode: .fit)${labelMod}`;
   },
 
-  emitTextField(indent: string): string {
-    return `${indent}TextField("Input", text: .constant(""))\n${indent}.textFieldStyle(.roundedBorder)`;
+  emitTextField(node: UiNode, indent: string): string {
+    const a11y = node.accessibility;
+    const labelText = escapeString(a11y?.label || 'Input');
+    const hintMod = a11y?.hint
+      ? `\n${indent}.accessibilityHint("${escapeString(a11y.hint)}")`
+      : '';
+    return `${indent}TextField("${labelText}", text: .constant(""))\n${indent}.textFieldStyle(.roundedBorder)${hintMod}`;
   },
 
   emitAppBar(indent: string, title: string): string {
@@ -53,7 +73,7 @@ const swiftuiEmitter: NodeEmitter = {
     return `${indent}ScrollView {\n${indent}    LazyVStack {\n${children.join('\n')}\n${indent}    }\n${indent}}`;
   },
 
-  emitForm(indent: string, children: string[]): string {
+  emitForm(node: UiNode, indent: string, children: string[]): string {
     return `${indent}Form {\n${children.join('\n')}\n${indent}}`;
   },
 

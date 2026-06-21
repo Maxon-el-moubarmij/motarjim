@@ -10,4 +10,7 @@ fun GeneratedView() {
     ) {
         Text(text = "Hello World HTML and CSS in a single file.")
     }
+        .semantics {
+            contentDescription = "Hello World HTML and CSS in a single file. Get Started"
+        }
 }

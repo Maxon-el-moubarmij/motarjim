@@ -30,6 +30,7 @@ class GeneratedView extends StatelessWidget {
     Text("Welcome to My App A modern application built with the best technologies."),
     ElevatedButton(
             onPressed: () {},
+            semanticLabel: "Get Started",
             child: Text("Get Started"),
           ),
             ],
@@ -41,6 +42,7 @@ class GeneratedView extends StatelessWidget {
         children: [
     Card(
           child: Text("Fast Lightning fast performance"),
+          semanticLabel: "Fast Lightning fast performance",
         ),
         ],
       ),
@@ -50,17 +52,22 @@ class GeneratedView extends StatelessWidget {
     Text("Contact Us"),
     TextField(
           decoration: InputDecoration(
+            labelText: "Your Name",
+            hintText: "Your Name",
             border: OutlineInputBorder(),
           ),
         ),
     TextField(
           decoration: InputDecoration(
+            labelText: "Your Email",
+            hintText: "Your Email",
             border: OutlineInputBorder(),
           ),
         ),
     SizedBox.shrink(),
     ElevatedButton(
           onPressed: () {},
+          semanticLabel: "Send Message",
           child: Text("Send Message"),
         ),
           ],
