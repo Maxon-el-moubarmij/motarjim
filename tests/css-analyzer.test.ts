@@ -1,10 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { parseCss, matchSelector, resolveStyles, extractResponsiveHints } from '../packages/css-analyzer/index.js';
 
+function getCss(css: string) {
+  const r = parseCss(css);
+  if (!r.ok) throw new Error(r.diagnostics.map(d => d.message).join(', '));
+  return r.value;
+}
+
 describe('CSS Analyzer', () => {
   it('parses simple CSS rules', () => {
     const css = '.btn { color: red; font-size: 16px; }';
-    const sheet = parseCss(css);
+    const sheet = getCss(css);
     expect(sheet.rules).toHaveLength(1);
     expect(sheet.rules[0].selectors).toEqual(['.btn']);
     expect(sheet.rules[0].declarations).toHaveLength(2);
@@ -56,7 +62,7 @@ describe('CSS Analyzer', () => {
 
   it('resolves styles for a node', () => {
     const css = '.card { padding: 16px; background: white; border-radius: 8px; }';
-    const sheet = parseCss(css);
+    const sheet = getCss(css);
     const node = {
       nodeId: '1',
       tagName: 'div',
@@ -71,7 +77,7 @@ describe('CSS Analyzer', () => {
 
   it('handles multiple rules', () => {
     const css = 'h1 { font-size: 32px; } h1 { color: blue; }';
-    const sheet = parseCss(css);
+    const sheet = getCss(css);
     const node = {
       nodeId: '1',
       tagName: 'h1',
@@ -86,25 +92,25 @@ describe('CSS Analyzer', () => {
   describe('PostCSS features', () => {
     it('handles vendor prefixes', () => {
       const css = '.box { -webkit-border-radius: 8px; border-radius: 8px; }';
-      const sheet = parseCss(css);
+      const sheet = getCss(css);
       expect(sheet.rules).toHaveLength(1);
       expect(sheet.rules[0].declarations).toHaveLength(2);
     });
 
     it('handles @import statements (ignores them gracefully)', () => {
       const css = '@import url("other.css"); .a { color: red; }';
-      const sheet = parseCss(css);
+      const sheet = getCss(css);
       expect(sheet.rules).toHaveLength(1);
     });
 
     it('handles empty input', () => {
-      const sheet = parseCss('');
+      const sheet = getCss('');
       expect(sheet.rules).toHaveLength(0);
       expect(sheet.mediaQueries).toHaveLength(0);
     });
 
     it('handles whitespace-only input', () => {
-      const sheet = parseCss('   \n  ');
+      const sheet = getCss('   \n  ');
       expect(sheet.rules).toHaveLength(0);
     });
   });
@@ -112,7 +118,7 @@ describe('CSS Analyzer', () => {
   describe('Media queries', () => {
     it('parses @media rules into mediaQueries', () => {
       const css = '@media (min-width: 768px) { .card { padding: 24px; } }';
-      const sheet = parseCss(css);
+      const sheet = getCss(css);
       expect(sheet.mediaQueries).toHaveLength(1);
       expect(sheet.mediaQueries[0].condition).toContain('min-width: 768px');
       expect(sheet.mediaQueries[0].rules).toHaveLength(1);
@@ -124,21 +130,21 @@ describe('CSS Analyzer', () => {
         .container { flex-direction: column; }
         .nav { display: none; }
       }`;
-      const sheet = parseCss(css);
+      const sheet = getCss(css);
       expect(sheet.mediaQueries).toHaveLength(1);
       expect(sheet.mediaQueries[0].rules).toHaveLength(2);
     });
 
     it('does not add non-media at-rules as mediaQueries', () => {
       const css = '@font-face { font-family: "Test"; } .a { color: red; }';
-      const sheet = parseCss(css);
+      const sheet = getCss(css);
       expect(sheet.mediaQueries).toHaveLength(0);
       expect(sheet.rules).toHaveLength(1);
     });
 
     it('handles complex media conditions', () => {
       const css = '@media (min-width: 1024px) and (max-width: 1440px) { .grid { gap: 32px; } }';
-      const sheet = parseCss(css);
+      const sheet = getCss(css);
       expect(sheet.mediaQueries).toHaveLength(1);
       expect(sheet.mediaQueries[0].condition).toContain('and');
     });
@@ -147,7 +153,7 @@ describe('CSS Analyzer', () => {
   describe('extractResponsiveHints', () => {
     it('extracts min-width responsive hints', () => {
       const css = '@media (min-width: 768px) { .card { padding: 24px; color: red; } }';
-      const sheet = parseCss(css);
+      const sheet = getCss(css);
       const hints = extractResponsiveHints(sheet);
       expect(hints.length).toBe(1);
       expect(hints[0].condition).toBe('min-width');
@@ -157,7 +163,7 @@ describe('CSS Analyzer', () => {
 
     it('extracts max-width responsive hints', () => {
       const css = '@media (max-width: 600px) { .container { flex-direction: column; } }';
-      const sheet = parseCss(css);
+      const sheet = getCss(css);
       const hints = extractResponsiveHints(sheet);
       expect(hints.length).toBe(1);
       expect(hints[0].condition).toBe('max-width');
@@ -166,7 +172,7 @@ describe('CSS Analyzer', () => {
     });
 
     it('returns empty array when no media queries', () => {
-      const sheet = parseCss('.a { color: red; }');
+      const sheet = getCss('.a { color: red; }');
       const hints = extractResponsiveHints(sheet);
       expect(hints).toEqual([]);
     });

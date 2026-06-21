@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { z } from 'zod';
 import type { StyledNode, UiNode } from '@html-native/shared';
+import { ok } from '@html-native/shared/diagnostics.js';
+
+function unwrap<T>(r: import('@html-native/shared').Result<T>): T {
+  if (!r.ok) throw new Error(r.diagnostics.map(d => d.message).join(', '));
+  return r.value;
+}
 
 // -- Phase 1: Semantic Analyzer AI --
 
@@ -92,9 +98,9 @@ describe('Phase 1 — Semantic Analyzer AI', () => {
 
       const html = '<nav class="navbar"><h1>Title</h1></nav>';
       const css = '.navbar { background: #333; }';
-      const ast = parseHtml(html);
-      const sheet = parseCss(css);
-      const styled = applyStyles(ast.children, sheet);
+      const ast = unwrap(parseHtml(html));
+      const sheet = unwrap(parseCss(css));
+      const styled = unwrap(applyStyles(ast.children, sheet));
 
       expect(styled[0].node.nodeId).toBeTruthy();
       expect(styled[0].node.nodeId).toMatch(/^node_\d+$/);
@@ -109,16 +115,14 @@ describe('Phase 1 — Semantic Analyzer AI', () => {
 
       const html = '<nav class="navbar"><h1>Title</h1></nav><div class="card"><p>Content</p></div>';
       const css = '.navbar { background: #333; } .card { padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px; }';
-      const ast = parseHtml(html);
-      const sheet = parseCss(css);
-      const styled = applyStyles(ast.children, sheet);
-      const ruleHints = detectSemantics(styled);
+      const ast = unwrap(parseHtml(html));
+      const sheet = unwrap(parseCss(css));
+      const styled = unwrap(applyStyles(ast.children, sheet));
+      const ruleHints = unwrap(detectSemantics(styled));
 
-      // Should have both Navbar and Card
       expect(ruleHints.some(h => h.type === 'NavigationBar')).toBe(true);
       expect(ruleHints.some(h => h.type === 'Card')).toBe(true);
 
-      // No duplicate type+nodeId combos
       const keys = ruleHints.map(h => `${h.type}-${h.node.nodeId}`);
       expect(new Set(keys).size).toBe(keys.length);
     });
@@ -193,7 +197,6 @@ describe('Phase 2 — AI-Powered IR Extraction', () => {
 
   describe('Serialization for AI', () => {
     it('serializes IR tree correctly', async () => {
-      // Test the serializeIrTree function (internal) through the public API
       const node: UiNode = {
         type: 'Column',
         properties: { padding: '16px' },
@@ -201,8 +204,6 @@ describe('Phase 2 — AI-Powered IR Extraction', () => {
           { type: 'Text', properties: {}, children: [], value: 'Hello' },
         ],
       };
-      // enrichWithIntentSync doesn't serialize — it uses rule inference directly
-      // The serialization is only used for AI calls
       expect(node.children[0].value).toBe('Hello');
     });
   });
@@ -309,7 +310,7 @@ describe('Phase 4 — Responsive Intelligence', () => {
       const { extractBreakpoints } = await import('../packages/css-analyzer/responsive.js');
       const { parseCss } = await import('../packages/css-analyzer/index.js');
       const css = '@media (min-width: 768px) { .card { padding: 24px; } } @media (max-width: 600px) { .card { flex-direction: column; } }';
-      const sheet = parseCss(css);
+      const sheet = unwrap(parseCss(css));
       const breakpoints = extractBreakpoints(sheet);
       expect(breakpoints).toHaveLength(2);
       expect(breakpoints[0].condition).toBe('min-width');
@@ -322,7 +323,7 @@ describe('Phase 4 — Responsive Intelligence', () => {
       const { extractBreakpoints } = await import('../packages/css-analyzer/responsive.js');
       const { parseCss } = await import('../packages/css-analyzer/index.js');
       const css = '@media (min-width: 768px) { .a { color: red; } } @media (min-width: 768px) { .b { color: blue; } }';
-      const sheet = parseCss(css);
+      const sheet = unwrap(parseCss(css));
       const breakpoints = extractBreakpoints(sheet);
       expect(breakpoints).toHaveLength(1);
     });
@@ -333,7 +334,7 @@ describe('Phase 4 — Responsive Intelligence', () => {
       const { detectMobileFirst } = await import('../packages/css-analyzer/responsive.js');
       const { parseCss } = await import('../packages/css-analyzer/index.js');
       const css = '@media (min-width: 768px) { .a { } } @media (min-width: 1024px) { .b { } }';
-      const sheet = parseCss(css);
+      const sheet = unwrap(parseCss(css));
       expect(detectMobileFirst(sheet)).toBe(true);
     });
 
@@ -341,7 +342,7 @@ describe('Phase 4 — Responsive Intelligence', () => {
       const { detectMobileFirst } = await import('../packages/css-analyzer/responsive.js');
       const { parseCss } = await import('../packages/css-analyzer/index.js');
       const css = '@media (max-width: 1024px) { .a { } } @media (max-width: 768px) { .b { } }';
-      const sheet = parseCss(css);
+      const sheet = unwrap(parseCss(css));
       expect(detectMobileFirst(sheet)).toBe(false);
     });
   });
@@ -351,7 +352,7 @@ describe('Phase 4 — Responsive Intelligence', () => {
       const { buildResponsiveMetadata } = await import('../packages/css-analyzer/responsive.js');
       const { parseCss } = await import('../packages/css-analyzer/index.js');
       const css = '@media (min-width: 768px) { .card { padding: 24px; } }';
-      const sheet = parseCss(css);
+      const sheet = unwrap(parseCss(css));
       const metadata = buildResponsiveMetadata(sheet);
       expect(metadata.breakpoints).toHaveLength(1);
       expect(metadata.mobileFirst).toBe(true);
@@ -361,7 +362,7 @@ describe('Phase 4 — Responsive Intelligence', () => {
     it('returns empty metadata for no media queries', async () => {
       const { buildResponsiveMetadata } = await import('../packages/css-analyzer/responsive.js');
       const { parseCss } = await import('../packages/css-analyzer/index.js');
-      const sheet = parseCss('body { color: black; }');
+      const sheet = unwrap(parseCss('body { color: black; }'));
       const metadata = buildResponsiveMetadata(sheet);
       expect(metadata.breakpoints).toHaveLength(0);
       expect(metadata.preferredLayout).toBe('single-column');
@@ -369,7 +370,7 @@ describe('Phase 4 — Responsive Intelligence', () => {
   });
 });
 
-// -- Phase 5: Generator Intelligence --
+// -- Phase 5: Widget Selection Engine --
 
 describe('Phase 5 — Widget Selection Engine', () => {
   describe('selectWidget', () => {
@@ -443,7 +444,7 @@ describe('Phase 5 — Widget Selection Engine', () => {
       };
       const result = suggestWidgetsForTree(node, 'flutter');
       expect(result.platform).toBe('flutter');
-      expect(result.suggestions.length).toBe(3); // Column + Text + Button
+      expect(result.suggestions.length).toBe(3);
       expect(result.suggestions[1].widget).toBe('Text');
       expect(result.suggestions[2].widget).toBe('ElevatedButton');
     });
@@ -457,8 +458,8 @@ describe('Phase 6 — Embedding-Based Understanding', () => {
     it('initializes with default patterns', async () => {
       const { SemanticPatternStore } = await import('../packages/semantic-analyzer/embeddings.js');
       const store = new SemanticPatternStore();
-      expect(store.patternCount).toBe(8); // 8 default patterns
-      expect(store.isReady).toBe(false); // Embeddings not computed
+      expect(store.patternCount).toBe(8);
+      expect(store.isReady).toBe(false);
     });
 
     it('matches by tags when embeddings unavailable', async () => {
@@ -469,9 +470,9 @@ describe('Phase 6 — Embedding-Based Understanding', () => {
       const store = new SemanticPatternStore();
       const html = '<div class="pricing-card"><h3>$10</h3><ul><li>Feature</li></ul></div>';
       const css = '.pricing-card { border: 1px solid #ccc; }';
-      const ast = parseHtml(html);
-      const sheet = parseCss(css);
-      const styled = applyStyles(ast.children, sheet);
+      const ast = unwrap(parseHtml(html));
+      const sheet = unwrap(parseCss(css));
+      const styled = unwrap(applyStyles(ast.children, sheet));
 
       const matches = await store.findSimilar(styled, 0.3);
       expect(Array.isArray(matches)).toBe(true);
@@ -480,8 +481,6 @@ describe('Phase 6 — Embedding-Based Understanding', () => {
     it('supports adding custom patterns', async () => {
       const { SemanticPatternStore } = await import('../packages/semantic-analyzer/embeddings.js');
       const store = new SemanticPatternStore();
-      const initialCount = store.patternCount;
-      // Custom pattern requires StyledNode[] - just test the method exists
       expect(typeof store.addPattern).toBe('function');
     });
 
@@ -490,7 +489,6 @@ describe('Phase 6 — Embedding-Based Understanding', () => {
       const store = new SemanticPatternStore();
       const removed = store.removePattern('nonexistent-id');
       expect(removed).toBe(false);
-      // Remove one that exists
       const patterns = store.listPatterns();
       if (patterns.length > 0) {
         const result = store.removePattern(patterns[0].id);
@@ -518,12 +516,11 @@ describe('Phase 6 — Embedding-Based Understanding', () => {
       const store = new SemanticPatternStore();
       const html = '<nav class="navbar"><h1>Site</h1></nav>';
       const css = '.navbar { background: #333; }';
-      const ast = parseHtml(html);
-      const sheet = parseCss(css);
-      const styled = applyStyles(ast.children, sheet);
+      const ast = unwrap(parseHtml(html));
+      const sheet = unwrap(parseCss(css));
+      const styled = unwrap(applyStyles(ast.children, sheet));
 
       const matches = await store.findSimilar(styled, 0.3);
-      // Should match the navbar pattern via tag keywords
       const navbarMatch = matches.find(m => m.intent === 'Navbar');
       if (navbarMatch) {
         expect(navbarMatch.similarity).toBeGreaterThan(0);
@@ -549,7 +546,7 @@ describe('Phase 7 — AI Optimizer', () => {
           },
         ],
       };
-      const result = optimize(ir, defaultPasses);
+      const result = unwrap(optimize(ir, defaultPasses));
       expect(result.type).toBe('Text');
       expect(result.value).toBe('Hello');
     });
@@ -561,7 +558,7 @@ describe('Phase 7 — AI Optimizer', () => {
         properties: {},
         children: [],
       };
-      const result = optimize(ir, defaultPasses);
+      const result = unwrap(optimize(ir, defaultPasses));
       expect(result.type).toBe('Spacer');
     });
 
@@ -572,7 +569,7 @@ describe('Phase 7 — AI Optimizer', () => {
         properties: {},
         children: [{ type: 'Text', properties: {}, children: [], value: 'Click Me' }],
       };
-      const result = optimize(ir, defaultPasses);
+      const result = unwrap(optimize(ir, defaultPasses));
       expect(result.value).toBe('Click Me');
       expect(result.properties.label).toBe('Click Me');
       expect(result.children).toHaveLength(0);
@@ -580,7 +577,6 @@ describe('Phase 7 — AI Optimizer', () => {
 
     it('optimizeForResponsive adds ScrollView for mobile-first with many children', async () => {
       const { optimize } = await import('../packages/optimizer/index.js');
-      // Use non-mergeable children (different types) and test in isolation
       const pass = { name: 'optimizeForResponsive', run: (await import('../packages/optimizer/index.js')).defaultPasses[6].run };
       const children: UiNode[] = [
         { type: 'Text', properties: {}, children: [], value: 'A' },
@@ -599,15 +595,13 @@ describe('Phase 7 — AI Optimizer', () => {
           mobileFirst: true,
         },
       };
-      const result = optimize(ir, [pass]);
-      // Should add ScrollView wrapper for mobile-first with 5 items
+      const result = unwrap(optimize(ir, [pass]));
       expect(result.children.length).toBe(5);
       expect(result.type).toBe('ScrollView');
     });
 
     it('preserves existing passes', async () => {
       const { optimize, defaultPasses } = await import('../packages/optimizer/index.js');
-      // Use a Container with a property so it doesn't get flattened
       const ir: UiNode = {
         type: 'Container',
         properties: { id: 'test' },
@@ -617,9 +611,7 @@ describe('Phase 7 — AI Optimizer', () => {
           { type: 'Text', properties: {}, children: [], value: 'World' },
         ],
       };
-      const result = optimize(ir, defaultPasses);
-      // removeEmptyText removes the empty text node
-      // mergeTextNodes merges Hello World
+      const result = unwrap(optimize(ir, defaultPasses));
       expect(result.children.length).toBe(1);
       expect(result.children[0].value).toContain('Hello');
     });
@@ -639,14 +631,16 @@ describe('Full Pipeline Integration with AI Features', () => {
 
     const html = '<nav class="navbar"><h1>App</h1></nav><div class="card"><p>Content</p></div>';
     const css = '.navbar { background: #333; } .card { padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px; }';
-    const ast = parseHtml(html);
-    const sheet = parseCss(css);
-    const styled = applyStyles(ast.children, sheet);
-    const hints = detectSemantics(styled);
+    const ast = unwrap(parseHtml(html));
+    const sheet = unwrap(parseCss(css));
+    const styled = unwrap(applyStyles(ast.children, sheet));
+    const hints = unwrap(detectSemantics(styled));
     const rootStyled = { node: ast, styles: {}, children: styled };
-    const ir = enrichWithIntentSync(styledNodeToIr(rootStyled, hints));
-    const optimized = optimize(ir);
-    const result = generate(optimized);
+    const irResult = styledNodeToIr(rootStyled, hints);
+    const irNode = unwrap(irResult);
+    const ir = enrichWithIntentSync(irNode);
+    const optimized = unwrap(optimize(ir));
+    const result = unwrap(generate(optimized));
 
     expect(result.code).toContain('AppBar');
     expect(result.code).toContain('Card');
@@ -660,12 +654,11 @@ describe('Full Pipeline Integration with AI Features', () => {
 
     const html = '<div style="display:flex;flex-direction:row"><span>A</span><span>B</span></div>';
     const css = '';
-    const ast = parseHtml(html);
-    const sheet = parseCss(css);
-    const styled = applyStyles(ast.children, sheet);
+    const ast = unwrap(parseHtml(html));
+    const sheet = unwrap(parseCss(css));
+    const styled = unwrap(applyStyles(ast.children, sheet));
     const analyzed = analyzeLayoutIntents(styled);
 
-    // Check that layout intent is attached
     expect(analyzed[0].layoutIntent).toBeDefined();
   });
 
@@ -678,11 +671,11 @@ describe('Full Pipeline Integration with AI Features', () => {
 
     const css = '@media (min-width: 768px) { .card { padding: 24px; } }';
     const html = '<div class="card">Content</div>';
-    const sheet = parseCss(css);
-    const ast = parseHtml(html);
-    const styled = applyStyles(ast.children, sheet);
+    const sheet = unwrap(parseCss(css));
+    const ast = unwrap(parseHtml(html));
+    const styled = unwrap(applyStyles(ast.children, sheet));
     const rootStyled = { node: ast, styles: {}, children: styled };
-    const ir = styledNodeToIr(rootStyled, []);
+    const ir = unwrap(styledNodeToIr(rootStyled, []));
 
     const metadata = buildResponsiveMetadata(sheet);
     expect(metadata.breakpoints.length).toBe(1);
@@ -698,14 +691,13 @@ describe('Full Pipeline Integration with AI Features', () => {
 
     const html = '<nav class="navbar"><h1>App</h1></nav><button>Click</button>';
     const css = '.navbar { background: #333; }';
-    const ast = parseHtml(html);
-    const sheet = parseCss(css);
-    const styled = applyStyles(ast.children, sheet);
-    const hints = detectSemantics(styled);
+    const ast = unwrap(parseHtml(html));
+    const sheet = unwrap(parseCss(css));
+    const styled = unwrap(applyStyles(ast.children, sheet));
+    const hints = unwrap(detectSemantics(styled));
     const rootStyled = { node: ast, styles: {}, children: styled };
-    const ir = enrichWithIntentSync(styledNodeToIr(rootStyled, hints));
+    const ir = enrichWithIntentSync(unwrap(styledNodeToIr(rootStyled, hints)));
 
-    // Check widget suggestions for both nodes
     const navbarSuggestion = selectWidget(ir.children[0], 'flutter');
     expect(navbarSuggestion.widget).toBe('AppBar');
 
@@ -714,7 +706,6 @@ describe('Full Pipeline Integration with AI Features', () => {
   });
 
   it('AI module imports do not break existing API', async () => {
-    // Verify all module paths resolve correctly
     const semanticAnalyzer = await import('../packages/semantic-analyzer/index.js');
     expect(typeof semanticAnalyzer.detectSemantics).toBe('function');
 
