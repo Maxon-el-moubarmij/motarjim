@@ -10,8 +10,8 @@ import {
   NormalizationResult,
   UiNodeType,
   Result,
-} from '@html-native/shared';
-import { DiagnosticBag } from '@html-native/shared/diagnostics.js';
+} from '@motarjim/shared';
+import { DiagnosticBag } from '@motarjim/shared/diagnostics.js';
 
 export {
   SemanticPatternStore,
@@ -679,7 +679,7 @@ function deduplicateHints(hints: NormalizedHint[]): NormalizedHint[] {
 // 6. Backward-Compatible SemanticHint Adapter
 // ============================================================
 
-function toLegacyHints(normalized: NormalizedHint[]): import('@html-native/shared').SemanticHint[] {
+function toLegacyHints(normalized: NormalizedHint[]): import('@motarjim/shared').SemanticHint[] {
   return normalized.map(h => ({
     type: h.type,
     confidence: h.confidence,
@@ -727,7 +727,7 @@ export function normalizeSemantics(styledNodes: StyledNode[]): Result<Normalizat
 
 export function detectSemantics(
   styledNodes: StyledNode[],
-): Result<import('@html-native/shared').SemanticHint[]> {
+): Result<import('@motarjim/shared').SemanticHint[]> {
   const result = normalizeSemantics(styledNodes);
   if (!result.ok) {
     return { ok: false, diagnostics: result.diagnostics };

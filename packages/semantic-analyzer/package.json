@@ -1,5 +1,5 @@
 {
-  "name": "@html-native/semantic-analyzer",
+  "name": "@motarjim/semantic-analyzer",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@html-native/shared": "0.1.0",
+    "@motarjim/shared": "0.1.0",
     "zod": "^3.24.0"
   }
 }

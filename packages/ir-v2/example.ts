@@ -7,9 +7,9 @@
 // Full pipeline:  HTML + CSS → parse → cascade → IrNode
 // ============================================================
 
-import type { IrNode } from '@html-native/shared/ir-v2.js';
-import { parseHtml } from '@html-native/parser';
-import { parseCss, applyStyles, extractResponsiveHints } from '@html-native/css-analyzer';
+import type { IrNode } from '@motarjim/shared/ir-v2.js';
+import { parseHtml } from '@motarjim/parser';
+import { parseCss, applyStyles, extractResponsiveHints } from '@motarjim/css-analyzer';
 import { styledNodeToIrV2 } from './index.js';
 
 // ─── Input HTML & CSS ────────────────────────────────────────

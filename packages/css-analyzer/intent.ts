@@ -2,7 +2,7 @@
 // Analyzes CSS properties to infer layout intent (Centered, Grid, Stack, etc.)
 // Pure rule-based with no AI calls — fast and deterministic.
 
-import type { StyledNode, LayoutIntent, LayoutIntentType } from '@html-native/shared';
+import type { StyledNode, LayoutIntent, LayoutIntentType } from '@motarjim/shared';
 
 // -- Layout Intent Detection --
 

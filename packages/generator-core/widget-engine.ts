@@ -7,7 +7,7 @@ import type {
   PlatformTarget,
   SemanticIntent,
   WidgetSuggestion,
-} from '@html-native/shared';
+} from '@motarjim/shared';
 
 // -- Platform widget maps --
 

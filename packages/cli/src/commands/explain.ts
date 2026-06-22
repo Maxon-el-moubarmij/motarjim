@@ -3,32 +3,32 @@ import type { PipelineStage } from '../types.js';
 const STAGES: PipelineStage[] = [
   {
     name: 'HTML Parsing',
-    package: '@html-native/parser',
+    package: '@motarjim/parser',
     description: 'Parses HTML input using parse5 into an HtmlNode AST. Only <body> content is retained.',
   },
   {
     name: 'CSS Analysis',
-    package: '@html-native/css-analyzer',
+    package: '@motarjim/css-analyzer',
     description: 'Parses CSS with PostCSS, matches selectors (tag, class, id, universal) to HTML nodes, and attaches resolved styles.',
   },
   {
     name: 'Semantic Analysis',
-    package: '@html-native/semantic-analyzer',
+    package: '@motarjim/semantic-analyzer',
     description: 'Detects UI components (navbars, cards, heroes, modals) using rule-based heuristics. Optional Ollama AI enhancement.',
   },
   {
     name: 'IR Conversion',
-    package: '@html-native/ir',
+    package: '@motarjim/ir',
     description: 'Converts styled nodes into a platform-neutral intermediate representation (UiNode tree, 38 node types). CSS properties are normalized to camelCase.',
   },
   {
     name: 'Optimization',
-    package: '@html-native/optimizer',
+    package: '@motarjim/optimizer',
     description: 'Runs three passes: remove empty text nodes, merge adjacent text nodes, flatten redundant container wrappers.',
   },
   {
     name: 'Code Generation',
-    package: '@html-native/generator-{flutter,compose,swiftui}',
+    package: '@motarjim/generator-{flutter,compose,swiftui}',
     description: 'Walks the optimized IR tree and emits platform-specific code (Dart, Kotlin, or Swift) using the generator-core traversal engine.',
   },
 ];

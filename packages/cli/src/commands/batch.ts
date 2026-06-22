@@ -1,6 +1,6 @@
 import { readdirSync, existsSync } from 'fs';
 import { join, resolve, extname, basename, dirname } from 'path';
-import type { PlatformTarget } from '@html-native/shared';
+import type { PlatformTarget } from '@motarjim/shared';
 import type { CliConfig, ResolvedOptions } from '../types.js';
 import { loadConfigFile, clearConfigCache } from '../config/loader.js';
 import { findMatchingCss } from '../config/defaults.js';

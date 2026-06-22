@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { runPipeline } from '@html-native/pipeline-core';
+import { runPipeline } from '@motarjim/pipeline-core';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

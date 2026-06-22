@@ -3,7 +3,7 @@
 // Uses rule-based inference as default, with optional AI enhancement via Ollama.
 
 import { z } from 'zod';
-import type { UiNode, SemanticIntent, AiDetectorConfig } from '@html-native/shared';
+import type { UiNode, SemanticIntent, AiDetectorConfig } from '@motarjim/shared';
 
 // -- Zod Schema for Intent Response --
 

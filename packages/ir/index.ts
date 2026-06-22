@@ -1,6 +1,6 @@
-import type { UiNode, StyledNode, SemanticHint, NormalizedHint, AccessibilityInfo, Result, SourceSpan } from '@html-native/shared';
-import { DiagnosticBag } from '@html-native/shared/diagnostics.js';
-import { computeStyle } from '@html-native/css-analyzer';
+import type { UiNode, StyledNode, SemanticHint, NormalizedHint, AccessibilityInfo, Result, SourceSpan } from '@motarjim/shared';
+import { DiagnosticBag } from '@motarjim/shared/diagnostics.js';
+import { computeStyle } from '@motarjim/css-analyzer';
 
 export { enrichWithIntent, enrichWithIntentSync } from './ai-intent.js';
 export type { AIIntentInferenceConfig } from './ai-intent.js';

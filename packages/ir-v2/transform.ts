@@ -1,4 +1,4 @@
-import type { HtmlNode, StyledNode, ResolvedStyles } from '@html-native/shared';
+import type { HtmlNode, StyledNode, ResolvedStyles } from '@motarjim/shared';
 import type {
   IrNode,
   SemanticIR,
@@ -22,13 +22,13 @@ import type {
   GridTrack,
   ScrollAxis,
   DisplayType,
-} from '@html-native/shared/ir-v2.js';
+} from '@motarjim/shared/ir-v2.js';
 import {
   defaultAccessibility,
   emptySourceSpan,
   defaultComputedStyle,
   defaultTargetIR,
-} from '@html-native/shared/ir-v2.js';
+} from '@motarjim/shared/ir-v2.js';
 
 // ============================================================
 // Low-level: single HtmlNode → IrNode

@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'fs';
 import { join, resolve, extname, basename, dirname } from 'path';
-import type { PlatformTarget } from '@html-native/shared';
+import type { PlatformTarget } from '@motarjim/shared';
 import type { CliConfig, ResolvedOptions } from '../types.js';
 
 const TARGET_BY_EXTENSION: Record<string, PlatformTarget> = {

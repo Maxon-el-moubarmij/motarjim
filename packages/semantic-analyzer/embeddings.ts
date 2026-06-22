@@ -3,7 +3,7 @@
 // store known UI patterns and perform similarity matching against new nodes.
 // Optional — falls back gracefully when embeddings are unavailable.
 
-import type { StyledNode, SemanticIntent, AiDetectorConfig } from '@html-native/shared';
+import type { StyledNode, SemanticIntent, AiDetectorConfig } from '@motarjim/shared';
 
 // -- Pattern definition --
 

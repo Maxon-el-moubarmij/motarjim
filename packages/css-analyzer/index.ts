@@ -1,6 +1,6 @@
 import postcss from 'postcss';
-import type { CssStylesheet, CssRule, CssMediaQuery, HtmlNode, ResolvedStyles, StyledNode, ResponsiveHint, Result, Specificity } from '@html-native/shared';
-import { DiagnosticBag } from '@html-native/shared/diagnostics.js';
+import type { CssStylesheet, CssRule, CssMediaQuery, HtmlNode, ResolvedStyles, StyledNode, ResponsiveHint, Result, Specificity } from '@motarjim/shared';
+import { DiagnosticBag } from '@motarjim/shared/diagnostics.js';
 import { parseSelector, calculateSpecificity, matchAst, matchSelectorString, type ParentResolver } from './selector.js';
 import { cascadeStyles, createParentResolver, inheritMissingProperties, parseInlineStyles } from './cascade.js';
 

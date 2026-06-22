@@ -1,5 +1,5 @@
-import type { UiNode, Result } from '@html-native/shared';
-import { DiagnosticBag, ok } from '@html-native/shared/diagnostics.js';
+import type { UiNode, Result } from '@motarjim/shared';
+import { DiagnosticBag, ok } from '@motarjim/shared/diagnostics.js';
 
 export interface OptimizationPass {
   name: string;

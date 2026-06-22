@@ -1,4 +1,4 @@
-import type { HtmlNode, CssStylesheet, CssStyleDeclaration, ResolvedStyles, Specificity } from '@html-native/shared';
+import type { HtmlNode, CssStylesheet, CssStyleDeclaration, ResolvedStyles, Specificity } from '@motarjim/shared';
 import { parseSelector, calculateSpecificity, matchAst, type ParentResolver } from './selector.js';
 
 // -- Inheritable properties --
