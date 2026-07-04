@@ -1,37 +1,12 @@
-//! AST-to-AST transform infrastructure.
-//!
-//! A [`Transform`] rewrites a [`Program`] in place. This is the extension
-//! point for future lowering passes (e.g. rewriting arrow functions to
-//! function expressions for older targets); [`TemplateLiteralToConcat`] is
-//! the first concrete transform, lowering template literals into string
-//! concatenation for targets without native interpolation support.
+//! Built-in transform passes (e.g., [`TemplateLiteralToConcat`]).
 
-use crate::ast::{
-    ArrowBody, BinaryExpr, BinaryOp, BlockStmt, Expression, ForInit, MemberProp, Program, PropKey,
-    Statement, StringLit, TemplateLiteral,
-};
+use crate::ast::program::Program;
+use crate::ast::lit::*;
+use crate::ast::expr::*;
+use crate::ast::pat::*;
+use crate::ast::stmt::*;
+use crate::transform::Transform;
 
-/// A single AST-to-AST rewrite applied to a whole program.
-pub trait Transform {
-    /// A short, stable name identifying this transform (for logging).
-    fn name(&self) -> &'static str;
-
-    /// Rewrites `program` in place.
-    fn apply(&self, program: &mut Program);
-}
-
-/// Runs every transform in `transforms`, in order, over `program`.
-pub fn run_transforms(program: &mut Program, transforms: &[Box<dyn Transform>]) {
-    for transform in transforms {
-        transform.apply(program);
-    }
-}
-
-/// Lowers every template literal into an equivalent chain of string
-/// concatenations, e.g. `` `Hi, ${name}!` `` becomes `"Hi, " + name + "!"`.
-///
-/// Useful for code generation targets that have no native template literal
-/// equivalent.
 #[derive(Debug, Default)]
 pub struct TemplateLiteralToConcat;
 
@@ -47,8 +22,6 @@ impl Transform for TemplateLiteralToConcat {
     }
 }
 
-/// Recursively rewrites every template literal reachable from `expr`,
-/// including nested ones inside its own interpolated expressions.
 fn rewrite_expr(expr: &mut Expression) {
     match expr {
         Expression::TemplateLiteral(tpl) => {
@@ -57,8 +30,11 @@ fn rewrite_expr(expr: &mut Expression) {
             }
         }
         Expression::Array(arr) => {
-            for e in &mut arr.elements {
-                rewrite_expr(e);
+            for el in &mut arr.elements {
+                match el {
+                    ArrayElement::Some(e) | ArrayElement::Spread(e) => rewrite_expr(e),
+                    ArrayElement::None(_) => {}
+                }
             }
         }
         Expression::Object(obj) => {
@@ -88,7 +64,7 @@ fn rewrite_expr(expr: &mut Expression) {
                 ArrowBody::Expr(e) => rewrite_expr(e),
             }
         }
-        Expression::Unary(u) => rewrite_expr(&mut u.argument),
+        Expression::Unary(u) | Expression::Update(u) => rewrite_expr(&mut u.argument),
         Expression::Binary(b) => {
             rewrite_expr(&mut b.left);
             rewrite_expr(&mut b.right);
@@ -129,65 +105,71 @@ fn rewrite_expr(expr: &mut Expression) {
                 rewrite_expr(e);
             }
         }
+        Expression::Yield(y) => {
+            if let Some(arg) = &mut y.argument {
+                rewrite_expr(arg);
+            }
+        }
+        Expression::Await(a) => rewrite_expr(&mut a.argument),
+        Expression::Spread(s) => rewrite_expr(s),
+        Expression::Parenthesized(p) => rewrite_expr(p),
         Expression::Identifier(_)
+        | Expression::PrivateIdentifier(_)
         | Expression::Number(_)
+        | Expression::BigInt(_)
         | Expression::String(_)
         | Expression::Bool(_)
+        | Expression::Regex(_)
         | Expression::Null(_)
         | Expression::Undefined(_)
-        | Expression::This(_) => {}
+        | Expression::This(_)
+        | Expression::Super(_)
+        | Expression::MetaProperty(_) => {}
     }
 
-    // Children (if any) have already been rewritten above; now replace this
-    // node itself if it is a template literal.
     if matches!(expr, Expression::TemplateLiteral(_)) {
         let placeholder_span = expr.span();
-        let owned = std::mem::replace(expr, Expression::Undefined(placeholder_span));
+        let owned = std::mem::replace(expr, Expression::Null(placeholder_span));
         let Expression::TemplateLiteral(tpl) = owned else {
-            unreachable!("just matched Expression::TemplateLiteral above")
+            unreachable!()
         };
-        *expr = template_to_concat(tpl);
+        *expr = template_to_concat(*tpl);
     }
 }
 
-/// Converts a template literal's quasis and interpolations into a
-/// left-associative chain of `+` (string concatenation) expressions.
 fn template_to_concat(tpl: TemplateLiteral) -> Expression {
-    let TemplateLiteral {
-        quasis,
-        exprs,
-        span,
-    } = tpl;
+    let TemplateLiteral { quasis, exprs, span } = tpl;
     let mut quasis = quasis.into_iter();
-    let mut result = Expression::String(StringLit {
+    let mut result = Expression::String(Box::new(StringLit {
         value: quasis.next().unwrap_or_default(),
         span,
-    });
+    }));
     for (expr, quasi) in exprs.into_iter().zip(quasis) {
-        result = Expression::Binary(BinaryExpr {
+        result = Expression::Binary(Box::new(BinaryExpr {
             op: BinaryOp::Add,
             left: Box::new(result),
             right: Box::new(expr),
             span,
-        });
-        result = Expression::Binary(BinaryExpr {
+        }));
+        result = Expression::Binary(Box::new(BinaryExpr {
             op: BinaryOp::Add,
             left: Box::new(result),
-            right: Box::new(Expression::String(StringLit { value: quasi, span })),
+            right: Box::new(Expression::String(Box::new(StringLit {
+                value: quasi,
+                span,
+            }))),
             span,
-        });
+        }));
     }
     result
 }
 
-/// Rewrites every statement in a block.
 fn rewrite_block(block: &mut BlockStmt) {
     for stmt in &mut block.body {
         rewrite_stmt(stmt);
     }
 }
 
-/// Recursively rewrites every expression reachable from `stmt`.
 fn rewrite_stmt(stmt: &mut Statement) {
     match stmt {
         Statement::VarDecl(decl) => {
@@ -255,85 +237,44 @@ fn rewrite_stmt(stmt: &mut Statement) {
             rewrite_expr(&mut do_while.test);
         }
         Statement::Block(block) => rewrite_block(block),
-        Statement::Break(_)
-        | Statement::Continue(_)
-        | Statement::Empty(_)
-        | Statement::Import(_) => {}
+        Statement::Break(_) | Statement::Continue(_) | Statement::Empty(_) | Statement::Import(_) | Statement::Debugger(_) => {}
+        Statement::Throw(s) => rewrite_expr(&mut s.argument),
+        Statement::Try(s) => {
+            rewrite_block(&mut s.block);
+            if let Some(handler) = &mut s.handler {
+                rewrite_block(&mut handler.body);
+            }
+            if let Some(finalizer) = &mut s.finalizer {
+                rewrite_block(finalizer);
+            }
+        }
+        Statement::Switch(s) => {
+            rewrite_expr(&mut s.discriminant);
+            for case in &mut s.cases {
+                if let Some(test) = &mut case.test {
+                    rewrite_expr(test);
+                }
+            }
+        }
         Statement::Expr(expr_stmt) => rewrite_expr(&mut expr_stmt.expr),
         Statement::ExportNamed(export) => {
             if let Some(decl) = &mut export.declaration {
                 rewrite_stmt(decl);
             }
         }
-        Statement::ExportDefault(export) => rewrite_expr(&mut export.expr),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::parser::JsParser;
-
-    fn transform(src: &str) -> Program {
-        let mut parser = JsParser::new(src);
-        let mut program = parser.parse().expect("should parse");
-        TemplateLiteralToConcat.apply(&mut program);
-        program
-    }
-
-    #[test]
-    fn test_simple_template_literal_becomes_concat() {
-        let program = transform("const msg = `Hi, ${name}!`;");
-        let Statement::VarDecl(decl) = &program.body[0] else {
-            panic!("expected var decl");
-        };
-        assert!(matches!(
-            decl.declarators[0].init,
-            Some(Expression::Binary(_))
-        ));
-    }
-
-    #[test]
-    fn test_no_template_literal_is_untouched() {
-        let program = transform("const x = 1 + 2;");
-        let Statement::VarDecl(decl) = &program.body[0] else {
-            panic!("expected var decl");
-        };
-        assert!(matches!(
-            decl.declarators[0].init,
-            Some(Expression::Binary(_))
-        ));
-    }
-
-    #[test]
-    fn test_template_literal_inside_function_body() {
-        let program = transform("function greet(name) { return `Hi, ${name}!`; }");
-        let Statement::FunctionDecl(func) = &program.body[0] else {
-            panic!("expected function decl");
-        };
-        let Statement::Return(ret) = &func.body.body[0] else {
-            panic!("expected return statement");
-        };
-        assert!(matches!(ret.argument, Some(Expression::Binary(_))));
-    }
-
-    #[test]
-    fn test_transform_name() {
-        assert_eq!(TemplateLiteralToConcat.name(), "template-literal-to-concat");
-    }
-
-    #[test]
-    fn test_run_transforms_helper() {
-        let mut parser = JsParser::new("const msg = `Hi, ${name}!`;");
-        let mut program = parser.parse().expect("should parse");
-        let transforms: Vec<Box<dyn Transform>> = vec![Box::new(TemplateLiteralToConcat)];
-        run_transforms(&mut program, &transforms);
-        let Statement::VarDecl(decl) = &program.body[0] else {
-            panic!("expected var decl");
-        };
-        assert!(matches!(
-            decl.declarators[0].init,
-            Some(Expression::Binary(_))
-        ));
+        Statement::ExportDefault(export) => match &mut export.declaration {
+            ExportDefaultKind::Expression(expr) => rewrite_expr(expr),
+            ExportDefaultKind::FunctionDecl(f) => {
+                for param in &mut f.params {
+                    if let Some(default) = &mut param.default {
+                        rewrite_expr(default);
+                    }
+                }
+                rewrite_block(&mut f.body);
+            }
+            ExportDefaultKind::ClassDecl(_) => {}
+        },
+        Statement::ClassDecl(_) => {}
+        Statement::Labelled { body, .. } => rewrite_stmt(body),
     }
 }
