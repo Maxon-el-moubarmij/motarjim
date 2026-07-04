@@ -89,6 +89,12 @@ const composeEmitter: NodeEmitter = {
   },
 };
 
+/**
+ * @deprecated Use generateIr from ./ir-generate.js instead.
+ * The IR-based pipeline (runIrPipeline) uses the typed IrNode tree
+ * with three-layer IR semantics. This legacy generate function operates
+ * on the old UiNode type and will be removed in a future release.
+ */
 export function generate(node: UiNode, name: string = 'GeneratedView', sourceComments: boolean = false): Result<GenerateResult> {
   const bag = new DiagnosticBag();
   const start = performance.now();

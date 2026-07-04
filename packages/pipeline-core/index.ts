@@ -8,7 +8,9 @@ import { optimize } from '@motarjim/optimizer';
 import { generate as generateFlutter } from '@motarjim/generator-flutter';
 import { generateIr as generateFlutterIr } from '@motarjim/generator-flutter/ir-generate.js';
 import { generate as generateCompose } from '@motarjim/generator-compose';
+import { generateIr as generateComposeIr } from '@motarjim/generator-compose/ir-generate.js';
 import { generate as generateSwiftUI } from '@motarjim/generator-swiftui';
+import { generateIr as generateSwiftUIIr } from '@motarjim/generator-swiftui/ir-generate.js';
 import type { StyledNode, GenerateResult, Result, Diagnostic, ResponsiveMetadata } from '@motarjim/shared';
 import type { IrNode } from '@motarjim/shared/ir-v2.js';
 import { formatDiagnostics } from '@motarjim/shared/diagnostics.js';
@@ -214,8 +216,11 @@ export async function runIrPipeline(input: PipelineInput): Promise<PipelineResul
       result = requireOk(generateFlutterIr(ir), 'generator');
       break;
     case 'compose':
+      result = requireOk(generateComposeIr(ir), 'generator');
+      break;
     case 'swiftui':
-      throw new Error(`IR v2 pipeline does not yet support target "${target}". Use runPipeline (legacy) for non-Flutter targets.`);
+      result = requireOk(generateSwiftUIIr(ir), 'generator');
+      break;
     default:
       throw new Error(`Unknown target "${target}"`);
   }
