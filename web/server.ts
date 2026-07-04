@@ -1,6 +1,7 @@
 import express, { type Request, type Response, type NextFunction } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync, existsSync } from 'fs';
 import { runPipeline, type Target } from '@motarjim/pipeline-core';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -9,7 +10,11 @@ const VALID_TARGETS: Target[] = ['flutter', 'compose', 'swiftui'];
 const app = express();
 
 app.use(express.json({ limit: '2mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+const distPath = path.join(__dirname, 'dist');
+if (existsSync(path.join(distPath, 'index.html'))) {
+  app.use(express.static(distPath));
+}
 
 app.use((_req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,11 +45,17 @@ app.post('/api/convert', async (req: Request, res: Response) => {
   }
 });
 
-app.use((_req: Request, res: Response) => {
-  res.status(404).json({ error: 'Not found.' });
-});
+if (existsSync(path.join(distPath, 'index.html'))) {
+  app.get('/{*path}', (_req: Request, res: Response) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  app.use((_req: Request, res: Response) => {
+    res.status(404).json({ error: 'Not found.' });
+  });
+}
 
-const PORT = Math.max(1024, Number(process.env.PORT) || 3000);
+const PORT = process.env.PORT ? Math.max(1024, Number(process.env.PORT)) : 3001;
 const server = app.listen(PORT, () => {
   console.log(`motarjim web UI running at http://localhost:${PORT}`);
 });
