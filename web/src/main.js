@@ -1,7 +1,7 @@
 import './styles/index.css';
+import { runPipeline } from '@motarjim/pipeline-core';
 import { icon } from './utils/icons.js';
 import { store } from './state/store.js';
-import { convertCode, healthCheck } from './utils/api.js';
 import { onShortcut } from './utils/keyboard.js';
 import { PIPELINE_STAGES, STATUS_MESSAGES, TARGETS } from './constants.js';
 import { createPipeline } from './components/Pipeline.js';
@@ -17,7 +17,6 @@ import { notify } from './components/Notifications.js';
 const app = document.getElementById('app');
 app.innerHTML = '';
 
-/* ----- Layout shells ----- */
 const appMain = document.createElement('div');
 appMain.className = 'app-main';
 
@@ -39,7 +38,6 @@ brand.innerHTML = `<span class="topnav-brand-icon">${icon('logo')}</span>motarji
 const navDivider = document.createElement('div');
 navDivider.className = 'topnav-divider';
 
-/* Platform selector */
 const platforms = document.createElement('div');
 platforms.className = 'topnav-platforms';
 
@@ -63,13 +61,6 @@ TARGETS.forEach(t => {
 
 const spacer = document.createElement('div');
 spacer.className = 'topnav-spacer';
-
-/* Settings & Theme */
-const settingsBtn = document.createElement('button');
-settingsBtn.className = 'topnav-btn';
-settingsBtn.innerHTML = icon('settings');
-settingsBtn.setAttribute('aria-label', 'Settings');
-settingsBtn.setAttribute('title', 'Settings');
 
 /* Theme toggle */
 function getTheme() {
@@ -106,7 +97,6 @@ topnav.appendChild(brand);
 topnav.appendChild(navDivider);
 topnav.appendChild(platforms);
 topnav.appendChild(spacer);
-topnav.appendChild(settingsBtn);
 topnav.appendChild(themeBtn);
 topnav.appendChild(compileBtn);
 
@@ -126,7 +116,6 @@ splitPanels.setAttribute('aria-label', 'Editor and output panels');
 const editorPanel = createEditorPanel();
 const outputPanel = createOutputPanel();
 
-/* Resize handle */
 const resizeHandle = document.createElement('div');
 resizeHandle.className = 'resize-handle';
 resizeHandle.setAttribute('role', 'separator');
@@ -165,7 +154,6 @@ resizeHandle.addEventListener('mousedown', (e) => {
   document.addEventListener('mouseup', onUp);
 });
 
-/* Keyboard resize */
 resizeHandle.addEventListener('keydown', (e) => {
   const step = 0.02;
   let ratio = store.get('panelRatio') || 0.5;
@@ -210,7 +198,7 @@ app.appendChild(topnav);
 app.appendChild(appMain);
 
 /* ==========================================================================
-   COMPILE LOGIC
+   COMPILE LOGIC — runs directly in browser, no server needed
    ========================================================================== */
 async function runCompile() {
   const html = editorPanel.getHTML().trim();
@@ -247,8 +235,8 @@ async function runCompile() {
   try {
     const startTime = performance.now();
 
-    const [apiResult] = await Promise.all([
-      convertCode({ html, css: editorPanel.getCSS(), target }),
+    const [result] = await Promise.all([
+      runPipeline({ html, css: editorPanel.getCSS(), target }),
       animatePipeline(),
     ]);
 
@@ -257,18 +245,18 @@ async function runCompile() {
     stageTimers.forEach(clearTimeout);
     pipeline.complete();
 
-    store.set('code', apiResult.code);
-    outputPanel.showCode(apiResult.code);
+    store.set('code', result.code);
+    outputPanel.showCode(result.code);
     outputPanel.hideLoading();
     outputPanel.showCompletion();
 
     store.set('stats', {
-      ...apiResult.stats,
-      duration: apiResult.stats?.duration ?? duration,
-      warnings: apiResult.stats?.warnings ?? 0,
+      ...result.stats,
+      duration: result.stats?.duration ?? duration,
+      warnings: result.stats?.warnings ?? 0,
     });
 
-    notify(`Generated ${apiResult.stats?.generatedLines ?? 0} lines in ${duration.toFixed(2)}s`, 'success', 3000);
+    notify(`Generated ${result.stats?.generatedLines ?? 0} lines in ${duration.toFixed(2)}s`, 'success', 3000);
   } catch (err) {
     stageTimers.forEach(clearTimeout);
     pipeline.reset();
@@ -400,34 +388,8 @@ restoreDraft();
    KEYBOARD SHORTCUTS
    ========================================================================== */
 onShortcut('Ctrl+Enter', runCompile);
-
 onShortcut('Ctrl+K', () => commandPalette.toggle());
-
 onShortcut('?', () => commandPalette.toggle());
-
-/* Target switchers */
 onShortcut('Ctrl+1', () => store.set('target', 'flutter'));
 onShortcut('Ctrl+2', () => store.set('target', 'compose'));
 onShortcut('Ctrl+3', () => store.set('target', 'swiftui'));
-
-/* ==========================================================================
-   BACKEND HEALTH CHECK
-   ========================================================================== */
-async function checkBackend() {
-  const online = await healthCheck();
-  store.set('backendOnline', online);
-}
-
-checkBackend();
-setInterval(checkBackend, 30000);
-
-/* ==========================================================================
-   KEYBOARD SHORTCUT HELP (Ctrl+/)
-   ========================================================================== */
-document.addEventListener('keydown', (e) => {
-  if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
-    const active = document.activeElement;
-    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
-    commandPalette.toggle();
-  }
-});
