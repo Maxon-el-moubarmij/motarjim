@@ -1,0 +1,40 @@
+[workspace]
+
+[package]
+name = "motarjim-fuzz"
+version = "0.1.0"
+edition = "2021"
+description = "Fuzz targets for Motarjim compiler"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+motarjim-lexer = { path = "../crates/motarjim-lexer" }
+motarjim-parser = { path = "../crates/motarjim-parser" }
+motarjim-selectors = { path = "../crates/motarjim-selectors" }
+motarjim-css = { path = "../crates/motarjim-css" }
+motarjim-diag = { path = "../crates/motarjim-diag" }
+motarjim-ast = { path = "../crates/motarjim-ast" }
+
+[[bin]]
+name = "html_lexer"
+path = "fuzz_targets/html_lexer.rs"
+
+[[bin]]
+name = "css_lexer"
+path = "fuzz_targets/css_lexer.rs"
+
+[[bin]]
+name = "html_parser"
+path = "fuzz_targets/html_parser.rs"
+
+[[bin]]
+name = "css_parser"
+path = "fuzz_targets/css_parser.rs"
+
+[[bin]]
+name = "selector_parser"
+path = "fuzz_targets/selector_parser.rs"

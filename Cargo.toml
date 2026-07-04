@@ -1,0 +1,94 @@
+[package]
+name = "motarjim"
+version = "0.1.0"
+edition = "2021"
+description = "Motarjim compiler workspace"
+publish = false
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/motarjim-core",
+    "crates/motarjim-ast",
+    "crates/motarjim-diag",
+    "crates/motarjim-lexer",
+    "crates/motarjim-parser",
+    "crates/motarjim-css",
+    "crates/motarjim-selectors",
+    "crates/motarjim-ir",
+    "crates/motarjim-optimizer",
+    "crates/motarjim-formatter",
+    "crates/motarjim-gen-flutter",
+    "crates/motarjim-gen-compose",
+    "crates/motarjim-gen-swiftui",
+    "crates/motarjim-cli",
+    "crates/motarjim-lsp",
+    "crates/motarjim-cache",
+    "crates/motarjim-incremental",
+    "crates/motarjim-config",
+    "crates/motarjim-fs",
+    "crates/motarjim-profiling",
+    "crates/motarjim-serialize",
+    "crates/motarjim-ffi",
+    "crates/motarjim-test-utils",
+    "crates/motarjim-wasm",
+    "xtask",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/motarjim/motarjim"
+
+[workspace.dependencies]
+motarjim-core = { path = "crates/motarjim-core", version = "0.1.0" }
+motarjim-ast = { path = "crates/motarjim-ast", version = "0.1.0" }
+motarjim-diag = { path = "crates/motarjim-diag", version = "0.1.0" }
+motarjim-lexer = { path = "crates/motarjim-lexer", version = "0.1.0" }
+motarjim-parser = { path = "crates/motarjim-parser", version = "0.1.0" }
+motarjim-css = { path = "crates/motarjim-css", version = "0.1.0" }
+motarjim-selectors = { path = "crates/motarjim-selectors", version = "0.1.0" }
+motarjim-ir = { path = "crates/motarjim-ir", version = "0.1.0" }
+motarjim-optimizer = { path = "crates/motarjim-optimizer", version = "0.1.0" }
+motarjim-formatter = { path = "crates/motarjim-formatter", version = "0.1.0" }
+motarjim-gen-flutter = { path = "crates/motarjim-gen-flutter", version = "0.1.0" }
+motarjim-gen-compose = { path = "crates/motarjim-gen-compose", version = "0.1.0" }
+motarjim-gen-swiftui = { path = "crates/motarjim-gen-swiftui", version = "0.1.0" }
+motarjim-cache = { path = "crates/motarjim-cache", version = "0.1.0" }
+motarjim-incremental = { path = "crates/motarjim-incremental", version = "0.1.0" }
+motarjim-config = { path = "crates/motarjim-config", version = "0.1.0" }
+motarjim-fs = { path = "crates/motarjim-fs", version = "0.1.0" }
+motarjim-profiling = { path = "crates/motarjim-profiling", version = "0.1.0" }
+motarjim-serialize = { path = "crates/motarjim-serialize", version = "0.1.0" }
+motarjim-ffi = { path = "crates/motarjim-ffi", version = "0.1.0" }
+motarjim-cli = { path = "crates/motarjim-cli", version = "0.1.0" }
+motarjim-lsp = { path = "crates/motarjim-lsp", version = "0.1.0" }
+motarjim-wasm = { path = "crates/motarjim-wasm", version = "0.1.0" }
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+smallvec = { version = "1", features = ["serde"] }
+bumpalo = "3"
+smol_str = { version = "0.2", features = ["serde"] }
+bitflags = "2"
+rayon = "1"
+thiserror = "1"
+tracing = "0.1"
+uuid = { version = "1", features = ["v4"] }
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1"
+insta = "1"
+paste = "1"
+sha2 = "0.10"
+toml = "0.8"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+panic = "deny"
+missing_docs_in_private_items = "deny"
