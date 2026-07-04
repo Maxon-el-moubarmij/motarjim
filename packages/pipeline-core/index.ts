@@ -3,12 +3,18 @@ import { parseCss, applyStyles, analyzeLayoutIntents, buildResponsiveMetadata } 
 import { detectSemantics } from '@motarjim/semantic-analyzer';
 import { analyzeAccessibility } from '@motarjim/accessibility-analyzer';
 import { styledNodeToIr, enrichWithIntent, enrichWithIntentSync } from '@motarjim/ir';
+import { styledNodeToIrV2 } from '@motarjim/ir-v2';
 import { optimize } from '@motarjim/optimizer';
 import { generate as generateFlutter } from '@motarjim/generator-flutter';
+import { generateIr as generateFlutterIr } from '@motarjim/generator-flutter/ir-generate.js';
 import { generate as generateCompose } from '@motarjim/generator-compose';
+import { generateIr as generateComposeIr } from '@motarjim/generator-compose/ir-generate.js';
 import { generate as generateSwiftUI } from '@motarjim/generator-swiftui';
-import type { HtmlNode, StyledNode, UiNode, GenerateResult, Result, Diagnostic, ResponsiveMetadata } from '@motarjim/shared';
+import { generateIr as generateSwiftUIIr } from '@motarjim/generator-swiftui/ir-generate.js';
+import type { StyledNode, GenerateResult, Result, Diagnostic, ResponsiveMetadata } from '@motarjim/shared';
+import type { IrNode } from '@motarjim/shared/ir-v2.js';
 import { formatDiagnostics } from '@motarjim/shared/diagnostics.js';
+import { countHtmlNodes, countNodes as countUiNodes, countComponentNodes } from '@motarjim/shared/count-nodes.js';
 
 export type Target = 'flutter' | 'compose' | 'swiftui';
 
@@ -52,30 +58,6 @@ function requireOk<T>(result: Result<T>, phase: string): T {
   return result.value;
 }
 
-const COMPONENT_TYPES = new Set([
-  'Button', 'Card', 'NavigationBar', 'AppBar', 'Drawer',
-  'HeroSection', 'Footer', 'Sidebar', 'Dialog', 'Modal',
-  'Tabs', 'Form', 'TextField', 'TextArea', 'List',
-]);
-
-function countHtmlNodes(node: HtmlNode): number {
-  let count = 1;
-  for (const child of node.children) count += countHtmlNodes(child);
-  return count;
-}
-
-function countComponentNodes(node: UiNode): number {
-  let count = COMPONENT_TYPES.has(node.type) ? 1 : 0;
-  for (const child of node.children) count += countComponentNodes(child);
-  return count;
-}
-
-function countNodes(node: UiNode): number {
-  let count = 1;
-  for (const child of node.children) count += countNodes(child);
-  return count;
-}
-
 function attachResponsiveMetadata(ir: UiNode, metadata: ResponsiveMetadata): UiNode {
   function walk(node: UiNode): UiNode {
     return {
@@ -87,6 +69,12 @@ function attachResponsiveMetadata(ir: UiNode, metadata: ResponsiveMetadata): UiN
   return walk(ir);
 }
 
+/**
+ * @deprecated Use runIrPipeline instead.
+ * runPipeline uses the legacy UiNode-based pipeline. New code should use
+ * runIrPipeline which produces IrNode trees with typed ComputedStyle,
+ * SemanticIR, and LayoutIR.
+ */
 export async function runPipeline(input: PipelineInput): Promise<PipelineResult> {
   const { html, css, target, aiEnhance, aiModel } = input;
   const startTime = Date.now();
@@ -138,8 +126,8 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
 
   const irBefore = structuredClone(ir);
   const optimized = requireOk(optimize(ir), 'optimizer');
-  const originalCount = countNodes(irBefore);
-  const optimizedCount = countNodes(optimized);
+  const originalCount = countUiNodes(irBefore);
+  const optimizedCount = countUiNodes(optimized);
   const savings = originalCount > 0 ? Math.round(((originalCount - optimizedCount) / originalCount) * 100) : 0;
 
   let result: GenerateResult;
@@ -166,6 +154,86 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
       styledNodes: styledCount,
       componentsDetected,
       optimizationSavings: savings,
+      generatedLines: result.code.split('\n').length,
+      target,
+      duration,
+    },
+  };
+}
+
+// ============================================================
+// IR v2 Pipeline — uses the three-layer IR architecture
+// ============================================================
+
+export async function runIrPipeline(input: PipelineInput): Promise<PipelineResult> {
+  const { html, css, target, aiEnhance, aiModel } = input;
+  const startTime = Date.now();
+
+  const ast = requireOk(parseHtml(html), 'parser');
+  const htmlNodeCount = countHtmlNodes(ast);
+
+  const stylesheet = requireOk(parseCss(css || ''), 'css');
+
+  let styledNodes: StyledNode[] = requireOk(applyStyles(ast.children, stylesheet), 'css');
+  const styledCount = styledNodes.reduce((acc, n) => acc + countHtmlNodes(n.node), 0);
+  styledNodes = analyzeLayoutIntents(styledNodes);
+
+  const responsiveMetadata = buildResponsiveMetadata(stylesheet);
+
+  // IR v2: Build IrNode tree directly from styled nodes
+  const rootStyled: StyledNode = {
+    node: ast,
+    styles: {},
+    children: styledNodes,
+    layoutIntent: { type: 'Stack', properties: {}, confidence: 1 },
+  };
+
+  const irNode = styledNodeToIrV2(rootStyled);
+
+  // Attach responsive metadata
+  function attachResponsiveMetadataIr(node: IrNode, metadata: ResponsiveMetadata): IrNode {
+    return {
+      ...node,
+      responsiveVariants: metadata.breakpoints.map(bp => ({
+        breakpoint: { condition: 'min-width' as const, value: bp.value },
+        layoutOverrides: {},
+        styleOverrides: {},
+      })),
+      children: node.children.map(c => attachResponsiveMetadataIr(c, metadata)),
+    };
+  }
+
+  let ir: IrNode = irNode;
+  if (responsiveMetadata.breakpoints.length > 0) {
+    ir = attachResponsiveMetadataIr(ir, responsiveMetadata);
+  }
+
+  const componentsDetected = 0;
+
+  let result: GenerateResult;
+  switch (target) {
+    case 'flutter':
+      result = requireOk(generateFlutterIr(ir), 'generator');
+      break;
+    case 'compose':
+      result = requireOk(generateComposeIr(ir), 'generator');
+      break;
+    case 'swiftui':
+      result = requireOk(generateSwiftUIIr(ir), 'generator');
+      break;
+    default:
+      throw new Error(`Unknown target "${target}"`);
+  }
+
+  const duration = (Date.now() - startTime) / 1000;
+
+  return {
+    code: result.code,
+    stats: {
+      htmlNodes: htmlNodeCount,
+      styledNodes: styledCount,
+      componentsDetected,
+      optimizationSavings: 0,
       generatedLines: result.code.split('\n').length,
       target,
       duration,

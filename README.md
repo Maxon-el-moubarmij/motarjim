@@ -28,39 +28,20 @@ Write once in HTML/CSS. Ship native code for every platform.
 
 ## Architecture
 
-```
-HTML + CSS
-    │
-    ▼
-┌─────────────┐
-│   Parser    │ ──▶ HtmlNode AST
-└─────────────┘
-    │
-    ▼
-┌──────────────┐
-│ CSS Analyzer │ ──▶ StyledNode tree
-└──────────────┘
-    │
-    ▼
-┌──────────────────┐
-│Semantic Analyzer │ ──▶ SemanticHint[]
-└──────────────────┘     (rule-based + optional AI)
-    │
-    ▼
-┌──────────┐
-│    IR    │ ──▶ UiNode (platform-neutral)
-└──────────┘
-    │
-    ▼
-┌──────────┐
-│Optimizer │ ──▶ Optimized UiNode
-└──────────┘
-    │
-    ▼
-┌────────────────┐
-│  Generator     │ ──▶ Flutter / Compose / SwiftUI
-└────────────────┘
-```
+<p align="center">
+  <img src="docs/architecture.svg" alt="motarjim Compiler Architecture" width="100%">
+</p>
+
+## Pipeline Stages
+
+| # | Stage | Description |
+|---|-------|-------------|
+| 1 | **Parse** | Parse HTML with parse5 → `HtmlNode` AST |
+| 2 | **Style** | Analyze CSS with PostCSS → cascade → `StyledNode` tree |
+| 3 | **Analyze** | 18 rule-based detectors + optional AI (Ollama) → `SemanticHint[]` |
+| 4 | **IR** | Build platform-agnostic `IrNode` tree (SemanticIR / LayoutIR / TargetIR) |
+| 5 | **Optimize** | flattenContainers · mergeTextNodes · removeEmptyText · pruneUnusedProps |
+| 6 | **Generate** | Walk IR tree → emit Flutter / Compose / SwiftUI code |
 
 ## Supported Targets
 
@@ -70,11 +51,25 @@ HTML + CSS
 | Jetpack Compose | Kotlin | Material 3 |
 | SwiftUI | Swift | iOS 17+ |
 
-## Why This Exists
+## Web Playground
 
-Mobile teams face a choice: write UI code three times (Flutter + Compose + SwiftUI) or use a cross-platform framework that adds a runtime layer.
+motarjim ships with a web-based playground at `http://localhost:3000`:
 
-motarjim offers a third path: write your UI structure in HTML/CSS, generate native code for each platform, and get the performance and idiomatic feel of hand-written platform code — without writing it three times.
+```
+npm start -w web
+```
+
+The web UI provides:
+
+- **Split-panel editor** — HTML/CSS tabs on the left, generated code on the right
+- **Pipeline visualizer** — Animated stage-by-stage progress bar
+- **Platform switcher** — Toggle between Flutter, Compose, and SwiftUI output
+- **Dark/light theme** — Persisted to local storage
+- **Code actions** — Paste, format, upload file, clear, load sample
+- **Status bar** — Compile time, node count, components detected, generated lines
+- **Command palette** — `Ctrl+K` or `?` for quick actions
+- **Auto-save drafts** — Work persists across sessions
+- **Error cards** — Detailed error messages with line info and copy action
 
 ## Quick Start
 
@@ -124,9 +119,38 @@ motarjim explain
 motarjim new landing-page
 ```
 
+### API Endpoint
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/convert` | Convert HTML/CSS to native UI code |
+| `GET` | `/api/health` | Health check |
+
+```json
+POST /api/convert
+{
+  "html": "<button>Click me</button>",
+  "css": "button { background: blue; }",
+  "target": "flutter"
+}
+```
+
+Response:
+```json
+{
+  "code": "import 'package:flutter/material.dart';...",
+  "stats": {
+    "htmlNodes": 3,
+    "componentsDetected": 1,
+    "generatedLines": 9,
+    "duration": 0.009
+  }
+}
+```
+
 ## Examples
 
-### Input HTML
+### Input
 
 ```html
 <nav class="navbar">
@@ -138,8 +162,6 @@ motarjim new landing-page
   <button>Get Started</button>
 </section>
 ```
-
-### Input CSS
 
 ```css
 .navbar { background: #333; color: white; padding: 1rem; }
@@ -179,8 +201,6 @@ class GeneratedView extends StatelessWidget {
 ```kotlin
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.ui.Modifier
 
 @Composable
 fun GeneratedView() {
@@ -216,54 +236,6 @@ struct GeneratedView: View {
             }
         }
     }
-}
-```
-
-## Web UI
-
-motarjim ships with a web-based playground and API server for interactive use.
-
-### Starting the Web UI
-
-```bash
-# From the project root
-npm start -w web
-
-# Or from the web directory
-cd web && npm start
-
-# Visit http://localhost:3000
-```
-
-The web UI provides a side-by-side editor where you paste HTML + CSS, pick a target platform (Flutter / Compose / SwiftUI), and see the generated code instantly.
-
-### API Endpoint
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/api/convert` | Convert HTML/CSS to native UI code |
-| `GET` | `/api/health` | Health check |
-
-#### POST /api/convert
-
-```json
-{
-  "html": "<button>Click me</button>",
-  "css": "button { background: blue; }",
-  "target": "flutter"
-}
-```
-
-Response:
-```json
-{
-  "code": "import 'package:flutter/material.dart';...",
-  "stats": {
-    "htmlNodes": 3,
-    "componentsDetected": 1,
-    "generatedLines": 9,
-    "duration": 0.009
-  }
 }
 ```
 
