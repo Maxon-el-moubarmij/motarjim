@@ -22,7 +22,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v4
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
       - name: Archive binary
@@ -67,7 +67,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             motarjim-*/*.tar.gz
