@@ -3,7 +3,7 @@
 //! Every node carries a [`SourceSpan`] so diagnostics, source maps, and
 //! tooling (hover, go-to-definition) can point back at the original text.
 
-use motarjim_diag::{SourceLocation, SourceSpan};
+use motarjim_span::{SourceLocation, SourceSpan};
 
 /// A parsed JavaScript program: an ordered list of top-level statements.
 #[derive(Debug, Clone, PartialEq)]

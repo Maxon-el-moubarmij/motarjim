@@ -11,7 +11,7 @@
 //! the handler bound to a `click` listener). Extraction only; nothing here
 //! is wired into `motarjim-ir` yet.
 
-use motarjim_diag::SourceSpan;
+use motarjim_span::SourceSpan;
 
 use crate::ast::{AssignExpr, CallExpr, Expression, MemberProp, Program};
 use crate::visitor::{walk_expression, Visitor};
