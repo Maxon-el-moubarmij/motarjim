@@ -3,11 +3,14 @@ import { parseCss, applyStyles, analyzeLayoutIntents, buildResponsiveMetadata } 
 import { detectSemantics } from '@motarjim/semantic-analyzer';
 import { analyzeAccessibility } from '@motarjim/accessibility-analyzer';
 import { styledNodeToIr, enrichWithIntent, enrichWithIntentSync } from '@motarjim/ir';
+import { styledNodeToIrV2 } from '@motarjim/ir-v2';
 import { optimize } from '@motarjim/optimizer';
 import { generate as generateFlutter } from '@motarjim/generator-flutter';
+import { generateIr as generateFlutterIr } from '@motarjim/generator-flutter/ir-generate.js';
 import { generate as generateCompose } from '@motarjim/generator-compose';
 import { generate as generateSwiftUI } from '@motarjim/generator-swiftui';
 import type { HtmlNode, StyledNode, UiNode, GenerateResult, Result, Diagnostic, ResponsiveMetadata } from '@motarjim/shared';
+import type { IrNode } from '@motarjim/shared/ir-v2.js';
 import { formatDiagnostics } from '@motarjim/shared/diagnostics.js';
 
 export type Target = 'flutter' | 'compose' | 'swiftui';
@@ -166,6 +169,83 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
       styledNodes: styledCount,
       componentsDetected,
       optimizationSavings: savings,
+      generatedLines: result.code.split('\n').length,
+      target,
+      duration,
+    },
+  };
+}
+
+// ============================================================
+// IR v2 Pipeline — uses the three-layer IR architecture
+// ============================================================
+
+export async function runIrPipeline(input: PipelineInput): Promise<PipelineResult> {
+  const { html, css, target, aiEnhance, aiModel } = input;
+  const startTime = Date.now();
+
+  const ast = requireOk(parseHtml(html), 'parser');
+  const htmlNodeCount = countHtmlNodes(ast);
+
+  const stylesheet = requireOk(parseCss(css || ''), 'css');
+
+  let styledNodes: StyledNode[] = requireOk(applyStyles(ast.children, stylesheet), 'css');
+  const styledCount = styledNodes.reduce((acc, n) => acc + countHtmlNodes(n.node), 0);
+  styledNodes = analyzeLayoutIntents(styledNodes);
+
+  const responsiveMetadata = buildResponsiveMetadata(stylesheet);
+
+  // IR v2: Build IrNode tree directly from styled nodes
+  const rootStyled: StyledNode = {
+    node: ast,
+    styles: {},
+    children: styledNodes,
+    layoutIntent: { type: 'Stack', properties: {}, confidence: 1 },
+  };
+
+  const irNode = styledNodeToIrV2(rootStyled);
+
+  // Attach responsive metadata
+  function attachResponsiveMetadataIr(node: IrNode, metadata: ResponsiveMetadata): IrNode {
+    return {
+      ...node,
+      responsiveVariants: metadata.breakpoints.map(bp => ({
+        breakpoint: { condition: 'min-width' as const, value: bp.value },
+        layoutOverrides: {},
+        styleOverrides: {},
+      })),
+      children: node.children.map(c => attachResponsiveMetadataIr(c, metadata)),
+    };
+  }
+
+  let ir: IrNode = irNode;
+  if (responsiveMetadata.breakpoints.length > 0) {
+    ir = attachResponsiveMetadataIr(ir, responsiveMetadata);
+  }
+
+  const componentsDetected = 0;
+
+  let result: GenerateResult;
+  switch (target) {
+    case 'flutter':
+      result = requireOk(generateFlutterIr(ir), 'generator');
+      break;
+    case 'compose':
+    case 'swiftui':
+      throw new Error(`IR v2 pipeline does not yet support target "${target}". Use runPipeline (legacy) for non-Flutter targets.`);
+    default:
+      throw new Error(`Unknown target "${target}"`);
+  }
+
+  const duration = (Date.now() - startTime) / 1000;
+
+  return {
+    code: result.code,
+    stats: {
+      htmlNodes: htmlNodeCount,
+      styledNodes: styledCount,
+      componentsDetected,
+      optimizationSavings: 0,
       generatedLines: result.code.split('\n').length,
       target,
       duration,
